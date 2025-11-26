@@ -10,7 +10,7 @@ gem "turbo-rails"
 gem "stimulus-rails"
 gem "tailwindcss-rails", "~> 0.4.1"
 gem "jbuilder"
-gem "bootsnap", ">= 1.4.4", require: false
+gem "bootsnap", ">= 1.4.4", require: false, group: :default
 
 # Our three magic gems — MUST be here, not at the bottom
 gem 'devise'
