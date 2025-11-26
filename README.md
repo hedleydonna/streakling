@@ -28,3 +28,4 @@ Things you may want to cover:
 # Tailwind downgrade for Render Wed Nov 26 16:28:24 EST 2025
 # Old Tailwind for Render compatibility Wed Nov 26 16:35:23 EST 2025
 # Final Render fix – explicit bootsnap Wed Nov 26 16:43:26 EST 2025
+# Old Tailwind for Render compatibility Wed Nov 26 16:55:45 EST 2025
