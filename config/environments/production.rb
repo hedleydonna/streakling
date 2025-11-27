@@ -95,9 +95,9 @@ Rails.application.configure do
   # Skip DNS rebinding protection for the default health check endpoint.
   # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
   # config.hosts << "streakling.onrender.com"
-# === TEMPORARY: Disable host blocking on Render while we’re building ===
-  # Remove or comment this out once we go to paid/custom domain
-  config.hosts.clear
+# === PERMA-FIX FOR RENDER: turn host checking completely off in production ===
+  # We’ll tighten this again later when we have a custom domain
+  config.hosts = nil   # this disables the entire host-authorization middleware
 
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
