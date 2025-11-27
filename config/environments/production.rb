@@ -87,17 +87,14 @@ Rails.application.configure do
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
 
-  # Enable DNS rebinding protection and other `Host` header attacks.
-  # config.hosts = [
-  #   "example.com",     # Allow requests from example.com
-  #   /.*\.example\.com/ # Allow requests from subdomains like `www.example.com`
-  # ]
-  # Skip DNS rebinding protection for the default health check endpoint.
-  # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
-  # config.hosts << "streakling.onrender.com"
-# === PERMA-FIX FOR RENDER: turn host checking completely off in production ===
-  # We’ll tighten this again later when we have a custom domain
-  config.hosts = nil   # this disables the entire host-authorization middleware
+  # Allow Render production domain + health checks (the correct Rails 7 way)
+  config.hosts = [
+    "streakling.onrender.com",
+    /.*\.onrender\.com/,
+    "localhost",
+    "127.0.0.1",
+    "0.0.0.0"
+  ]
 
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
