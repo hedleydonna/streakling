@@ -1,0 +1,6 @@
+<div class="text-center py-20">
+  <h1 class="text-4xl font-bold mb-8">Welcome to Streakling, <%= current_user.email.split("@").first.capitalize %>!</h1>
+  <p class="text-xl mb-4">Your streakling critters are waiting to be fed with daily habits.</p>
+  <div class="text-9xl animate-bounce">🐾</div>
+  <%= link_to "Add First Habit", "#", class: "bg-green-600 hover:bg-green-700 text-white text-xl px-8 py-4 rounded-full mt-8 inline-block" %>
+</div>
