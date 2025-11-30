@@ -23,5 +23,13 @@ module Streakling
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
+
+    # FINAL NUCLEAR FIX — forces correct URLs for Devise redirects in production
+    config.after_initialize do
+      if Rails.env.production?
+        Rails.application.routes.default_url_options[:host]     = "streakling.onrender.com"
+        Rails.application.routes.default_url_options[:protocol] = "https"
+      end
+    end
   end
 end
