@@ -49,7 +49,7 @@ Rails.application.configure do
   # config.assume_ssl = true
 
   # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
-  config.force_ssl = true
+  # config.force_ssl = true
 
   # Log to STDOUT by default
   config.logger = ActiveSupport::Logger.new(STDOUT)
@@ -100,7 +100,11 @@ Rails.application.configure do
   config.active_record.dump_schema_after_migration = false
 
   # temporarily disable SSL enforcement
-  config.force_ssl = false 
+  config.action_controller.allow_forgery_protection = false
+  config.middleware.delete ActionDispatch::HostAuthorization if defined?(ActionDispatch::HostAuthorization)
+  config.hosts.clear
+  config.force_ssl = false
+  config.turbo.enabled = false
 end
 
 
