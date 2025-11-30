@@ -13,4 +13,6 @@ Rails.application.routes.draw do
 
   # Temporary dashboard route
   get 'dashboard', to: 'dashboard#index'
+
+  get '*path', to: redirect('https://%{host}%{path}', status: 301), constraints: { host: 'streakling.onrender.com' }
 end
