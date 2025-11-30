@@ -1,0 +1,17 @@
+<div style="text-align:center; padding:120px 20px; font-family:system-ui; line-height:1.6">
+  <h1 style="font-size:3.5rem; margin-bottom:20px">Welcome to Streakling</h1>
+  <p style="font-size:1.3rem; color:#555">
+    Build unbreakable habits, one day at a time.
+  </p>
+  <p style="margin:40px 0">
+    <%= link_to "Log in", new_user_session_path, class: "btn btn-primary" %>
+    &nbsp;&nbsp;&nbsp;
+    <%= link_to "Sign up", new_user_registration_path, class: "btn btn-outline-primary" %>
+  </p>
+</div>
+
+<style>
+  .btn { padding:12px 24px; text-decoration:none; border-radius:8px; font-size:1.1rem; }
+  .btn-primary { background:#2563eb; color:white; }
+  .btn-outline-primary { border:2px solid #2563eb; color:#2563eb; }
+</style>
