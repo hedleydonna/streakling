@@ -1,23 +1,23 @@
 require "active_support/core_ext/integer/time"
 
 Rails.application.configure do
-  # basic production settings
-  config.enable_reloading = false
+  # Core settings
+  config.cache_classes = true
   config.eager_load = true
-  config.consider_all_requests_local = false
+  config.consider_all_requests_local       = false
   config.action_controller.perform_caching = true
-  config.assets.compile = false
-  config.active_storage.service = :local
+  config.public_file_server.enabled        = true
+  config.assets.compile                    = false
+  config.active_storage.service           = :local
 
-  # THIS IS THE ONLY THING THAT MATTERS RIGHT NOW
-  config.force_ssl = false                                   # ← kills the loop
-  config.public_file_server.enabled = true                  # serve assets
+  # THIS IS THE FIX THAT KILLS THE REDIRECT LOOP
+  config.force_ssl = false
 
-  # tell Rails + Devise the correct host/protocol for URLs
+  # Tell Rails + Devise the correct host/protocol (Render handles HTTPS)
   config.action_controller.default_url_options = { host: "streakling.onrender.com", protocol: "https" }
   config.action_mailer.default_url_options     = { host: "streakling.onrender.com", protocol: "https" }
 
-  # proper host whitelisting (no more Blocked hosts)
+  # Host whitelisting — required for Rails 7+
   config.hosts = [
     "streakling.onrender.com",
     /.*\.onrender\.com/,
@@ -26,13 +26,13 @@ Rails.application.configure do
     "0.0.0.0"
   ]
 
-  # logging
+  # Logging
   config.log_level = ENV.fetch("RAILS_LOG_LEVEL", "info")
   config.logger = ActiveSupport::Logger.new(STDOUT)
     .tap  { |logger| logger.formatter = ::Logger::Formatter.new }
     .then { |logger| ActiveSupport::TaggedLogging.new(logger) }
 
-  # misc
+  # Misc
   config.action_mailer.perform_caching = false
   config.i18n.fallbacks = true
   config.active_support.report_deprecations = false
