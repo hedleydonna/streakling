@@ -1,10 +1,16 @@
 <div class="text-center py-20">
-  <h1 class="text-4xl font-bold mb-8">Welcome to Streakling, <%= current_user.email.split("@").first.capitalize %>!</h1>
+  <h1 class="text-4xl font-bold mb-8">
+    Welcome to Streakling, <%= current_user.email.split("@").first.capitalize %>!
+  </h1>
   <p class="text-xl mb-4">Your streakling critters are waiting to be fed with daily habits.</p>
-  <div class="text-9xl animate-bounce mb-10">Paw Print</div>
+  <div class="text-9xl animate-bounce">🐾</div>
 
+  <!-- Safe version until you generate Habit -->
+  <%= link_to "Add First Habit", "#", 
+      class: "bg-green-600 hover:bg-green-700 text-white text-xl px-8 py-4 rounded-full mt-8 inline-block transition",
+      title: "Habit system coming next!" %>
 
-  <!-- LOG OUT BUTTON – ONE LINE, PERFECT STYLE -->
+  <!-- Log out button -->
   <%= button_to "Log out", destroy_user_session_path, method: :delete,
       class: "bg-red-600 hover:bg-red-700 text-white text-xl px-8 py-4 rounded-full mt-6 inline-block transition" %>
 </div>
