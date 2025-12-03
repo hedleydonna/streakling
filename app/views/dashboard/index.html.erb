@@ -2,27 +2,27 @@
   <div class="max-w-5xl mx-auto text-center">
 
     <!-- NORMAL DASHBOARD (when alive) -->
-    <% unless current_user.pet.dead? %>
+    <% unless current_user.pet&.dead? %>
       <h1 class="text-5xl font-bold mb-8 text-gray-800">
         Welcome back, <%= current_user.email.split("@").first.capitalize %>!
       </h1>
 
-      <!-- PET + SPECIES + EVOLUTION -->
+      <!-- PET + SPECIES + EVOLUTION INFO -->
       <div class="my-12 text-center">
         <div class="text-9xl animate-bounce inline-block">
-          <%= current_user.pet.emoji %>
+          <%= current_user.pet&.emoji %>
         </div>
 
         <p class="text-4xl font-bold mt-8 text-gray-800">
-          <%= current_user.pet.name %> feels <span class="text-purple-600"><%= current_user.pet.mood.to_s.upcase %></span>
+          <%= current_user.pet&.name %> feels <span class="text-purple-600"><%= current_user.pet&.mood.to_s.upcase %></span>
         </p>
 
         <div class="mt-6">
           <p class="text-2xl text-gray-700">
-            Species: <span class="font-bold text-indigo-600 text-3xl"><%= current_user.pet.species_name %></span>
+            Species: <span class="font-bold text-indigo-600 text-3xl"><%= current_user.pet&.species_name %></span>
           </p>
 
-          <% next_species_entry = current_user.pet.class::SPECIES.find { |_, data| data[:unlock] > current_user.longest_streak } %>
+          <% next_species_entry = current_user.pet ? Pet::SPECIES.find { |_, data| data[:unlock] > current_user.longest_streak } : nil %>
           <% if next_species_entry && current_user.longest_streak < 365 %>
             <p class="text-xl text-gray-600 mt-3">
               Next → <span class="font-bold text-purple-600"><%= next_species_entry[1][:name] %></span>
@@ -45,7 +45,7 @@
     <% end %>
 
     <!-- DEATH SCREEN -->
-    <% if current_user.pet.dead? %>
+    <% if current_user.pet&.dead? %>
       <div class="my-24">
         <div class="text-9xl mb-8">Tombstone</div>
         <h1 class="text-6xl font-black text-gray-800 mb-8"><%= current_user.pet.name %> has died</h1>
@@ -57,13 +57,13 @@
     <!-- TODAY'S HABITS -->
     <div class="my-12">
       <h2 class="text-3xl font-bold mb-8">
-        <%= current_user.pet.dead? ? "Fight to bring them back!" : "Today's Habits" %>
+        <%= current_user.pet&.dead? ? "Fight to bring them back!" : "Today's Habits" %>
       </h2>
 
       <% if current_user.habits.any? %>
         <div class="space-y-6 max-w-2xl mx-auto">
           <% current_user.habits.each do |habit| %>
-            <%= link_to toggle_habit_path(habit), method: :patch,
+            <%= button_to toggle_habit_path(habit), method: :patch,
                 class: "block p-8 rounded-3xl shadow-xl transition #{habit.completed_today? ? 'bg-green-100 border-4 border-green-400' : 'bg-white hover:bg-gray-50'}" do %>
               <div class="flex items-center justify-between">
                 <div class="text-left">
@@ -71,10 +71,22 @@
                   <span class="text-2xl font-medium"><%= habit.name %></span>
                 </div>
                 <div class="text-7xl">
-                  <%= habit.completed_today? ? "Checkmark" : "Circle" %>
+                  <%= habit.completed_today? ? "✓" : "○" %>
                 </div>
               </div>
             <% end %>
+
+            <!-- EDIT/DELETE LINKS below each habit -->
+            <div class="text-center mt-2 space-x-4">
+              <%= link_to edit_habit_path(habit), class: "text-gray-500 hover:text-purple-600 transition text-sm" do %>
+                Edit
+              <% end %>
+              <%= button_to habit_path(habit), method: :delete,
+                    data: { turbo_confirm: "Do you really want to delete this habit?" },
+                    class: "text-red-500 hover:text-red-700 transition text-sm" do %>
+                Delete
+              <% end %>
+            </div>
           <% end %>
         </div>
       <% else %>
@@ -82,7 +94,7 @@
       <% end %>
     </div>
 
-    <!-- ALWAYS-VISIBLE BUTTONS -->
+    <!-- BUTTONS — ALWAYS VISIBLE -->
     <div class="mt-16 space-x-8">
       <%= link_to "Add New Habit", new_habit_path,
           class: "bg-indigo-600 hover:bg-indigo-700 text-white text-2xl px-12 py-6 rounded-full shadow-2xl transition font-bold" %>
@@ -91,27 +103,10 @@
           class: "bg-red-600 hover:bg-red-700 text-white text-2xl px-12 py-6 rounded-full shadow-2xl transition font-bold" %>
     </div>
 
-    <!-- DEVELOPER TIME MACHINE — only you see this in development -->
-    <% if Rails.env.development? %>
-      <div class="fixed bottom-4 left-4 bg-black/90 text-white p-6 rounded-2xl shadow-2xl z-50 max-w-xs">
-        <h3 class="text-xl font-bold mb-4 text-yellow-400">Developer Time Machine</h3>
-        <div class="space-y-3 text-sm">
-          <%= button_to "Set all habits to YESTERDAY", debug_yesterday_path, method: :post,
-              class: "w-full bg-orange-600 hover:bg-orange-700 py-3 rounded-lg font-bold" %>
-          <%= button_to "Kill Sparkles (2 days ago)", debug_kill_path, method: :post,
-              class: "w-full bg-red-600 hover:bg-red-700 py-3 rounded-lg font-bold" %>
-          <%= button_to "Complete ALL habits TODAY", debug_complete_path, method: :post,
-              class: "w-full bg-green-600 hover:bg-green-700 py-3 rounded-lg font-bold" %>
-          <%= button_to "Reset to happy", debug_reset_path, method: :post,
-              class: "w-full bg-gray-600 hover:bg-gray-700 py-3 rounded-lg font-bold" %>
-        </div>
-      </div>
-    <% end %>
-
   </div>
 </div>
 
-<!-- Confetti on resurrection -->
+<!-- Confetti + Sound on resurrection -->
 <% if flash[:resurrected] %>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
   <script>

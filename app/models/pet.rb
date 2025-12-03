@@ -42,31 +42,36 @@ class Pet < ApplicationRecord
 
   # This runs every time a habit is toggled
   def update_mood!
-    completed = user.habits.where("completed_on >= ?", Time.zone.today.beginning_of_day).count
-    total     = user.habits.count
-
-    new_mood = if total.zero?
+    focus_habits       = user.habits.where(focus: true)
+    total_focus        = focus_habits.count
+    completed_focus    = focus_habits.where("completed_on >= ?", Time.zone.today.beginning_of_day).count
+  
+    # If the user has no focus habits → always HAPPY (safe start)
+    if total_focus.zero?
+      update!(mood: :happy) if mood != :happy
+      return
+    end
+  
+    # Only focus habits affect mood
+    new_mood = if completed_focus == total_focus
                  :happy
-               elsif completed == total
-                 :happy
-               elsif completed >= total * 0.7
+               elsif completed_focus >= total_focus * 0.7
                  :okay
-               elsif completed >= total * 0.4
+               elsif completed_focus >= total_focus * 0.4
                  :sad
-               elsif completed > 0
+               elsif completed_focus > 0
                  :sick
                else
                  :dead
                end
-
-    # RESURRECTION LOGIC
+  
+    # RESURRECTION (still needs 7 perfect focus days in a row)
     if new_mood != :dead && mood == :dead && user.current_streak >= 7
       update!(mood: :happy, level: level + 20)
-      # This flash is read in the view to trigger confetti
       flash[:resurrected] = true
       return
     end
-
+  
     update!(mood: new_mood) if mood != new_mood
   end
 end

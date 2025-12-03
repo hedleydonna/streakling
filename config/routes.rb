@@ -6,11 +6,13 @@ Rails.application.routes.draw do
   resources :habits
   devise_for :users
 
+  # Toggle route for authenticated users
+  patch "habits/:id/toggle", to: "habits#toggle", as: :toggle_habit
+
   # Logged-in users go straight to your existing dashboard
   authenticated :user do
     root "dashboard#index", as: :authenticated_root
     resources :habits, only: [:new, :create, :index]
-    patch "habits/:id/toggle", to: "habits#toggle", as: :toggle_habit
   end
 
   # Guests see a cute welcome page

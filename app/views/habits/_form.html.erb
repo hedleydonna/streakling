@@ -1,9 +1,9 @@
-<%= form_with(model: habit) do |form| %>
+<!-- app/views/habits/_form.html.erb -->
+<%= form_with(model: habit, class: "max-w-lg mx-auto bg-white p-10 rounded-3xl shadow-2xl") do |form| %>
   <% if habit.errors.any? %>
-    <div style="color: red">
-      <h2><%= pluralize(habit.errors.count, "error") %> prohibited this habit from being saved:</h2>
-
-      <ul>
+    <div class="bg-red-50 border border-red-300 text-red-700 px-6 py-4 rounded-2xl mb-8">
+      <h2 class="font-bold text-xl"><%= pluralize(habit.errors.count, "error") %> stopped this habit from saving:</h2>
+      <ul class="list-disc list-inside mt-3">
         <% habit.errors.each do |error| %>
           <li><%= error.full_message %></li>
         <% end %>
@@ -11,22 +11,37 @@
     </div>
   <% end %>
 
-  <div>
-    <%= form.label :name, style: "display: block" %>
-    <%= form.text_field :name %>
+  <div class="mb-8">
+    <%= form.label :name, "Habit Name", class: "block text-2xl font-bold text-gray-800 mb-3" %>
+    <%= form.text_field :name,
+        placeholder: "e.g. Drink Water, Meditate, Exercise",
+        class: "w-full px-6 py-4 text-xl border-4 border-purple-200 rounded-2xl focus:border-purple-600 focus:outline-none" %>
   </div>
 
-  <div>
-    <%= form.label :emoji, style: "display: block" %>
-    <%= form.text_field :emoji %>
+  <div class="mb-8">
+    <%= form.label :emoji, "Emoji", class: "block text-2xl font-bold text-gray-800 mb-3" %>
+    <%= form.text_field :emoji,
+        placeholder: "Water, Lotus, Running Man",
+        class: "w-full px-6 py-4 text-4xl text-center border-4 border-purple-200 rounded-2xl focus:border-purple-600 focus:outline-none" %>
+    <p class="text-sm text-gray-500 text-center mt-3">Copy-paste any emoji!</p>
   </div>
 
-  <div>
-    <%= form.label :user_id, style: "display: block" %>
-    <%= form.text_field :user_id %>
+  <div class="mb-10 p-6 bg-purple-50 rounded-3xl border-4 border-purple-200">
+    <div class="flex items-center">
+      <%= form.check_box :focus,
+          class: "w-10 h-10 text-purple-600 rounded focus:ring-purple-500 border-gray-300" %>
+      <%= form.label :focus, "Focus Habit — affects Sparkles' life & mood", class: "ml-5 text-2xl font-bold text-purple-800" %>
+    </div>
+    <p class="mt-4 text-gray-700 leading-relaxed">
+      Only <span class="font-bold text-purple-600">Focus habits</span> decide if Sparkles lives, dies, or evolves.<br>
+      All other habits are guilt-free trackers — perfect for building slowly!
+    </p>
   </div>
 
-  <div>
-    <%= form.submit %>
+  <%= form.hidden_field :user_id, value: current_user.id %>
+
+  <div class="text-center">
+    <%= form.submit habit.persisted? ? "Update Habit" : "Create Habit",
+        class: "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold text-2xl px-12 py-6 rounded-full shadow-2xl transform hover:scale-105 transition" %>
   </div>
 <% end %>
