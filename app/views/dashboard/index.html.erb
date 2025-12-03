@@ -1,16 +1,123 @@
-<div class="text-center py-20">
-  <h1 class="text-4xl font-bold mb-8">
-    Welcome to Streakling, <%= current_user.email.split("@").first.capitalize %>!
-  </h1>
-  <p class="text-xl mb-4">Your streakling critters are waiting to be fed with daily habits.</p>
-  <div class="text-9xl animate-bounce">🐾</div>
+<div class="min-h-screen bg-gradient-to-b from-purple-50 to-pink-50 py-12 px-4">
+  <div class="max-w-5xl mx-auto text-center">
 
-  <!-- Safe version until you generate Habit -->
-  <%= link_to "Add First Habit", "#", 
-      class: "bg-green-600 hover:bg-green-700 text-white text-xl px-8 py-4 rounded-full mt-8 inline-block transition",
-      title: "Habit system coming next!" %>
+    <!-- NORMAL DASHBOARD (when alive) -->
+    <% unless current_user.pet.dead? %>
+      <h1 class="text-5xl font-bold mb-8 text-gray-800">
+        Welcome back, <%= current_user.email.split("@").first.capitalize %>!
+      </h1>
 
-  <!-- Log out button -->
-  <%= button_to "Log out", destroy_user_session_path, method: :delete,
-      class: "bg-red-600 hover:bg-red-700 text-white text-xl px-8 py-4 rounded-full mt-6 inline-block transition" %>
+      <!-- PET + SPECIES + EVOLUTION -->
+      <div class="my-12 text-center">
+        <div class="text-9xl animate-bounce inline-block">
+          <%= current_user.pet.emoji %>
+        </div>
+
+        <p class="text-4xl font-bold mt-8 text-gray-800">
+          <%= current_user.pet.name %> feels <span class="text-purple-600"><%= current_user.pet.mood.to_s.upcase %></span>
+        </p>
+
+        <div class="mt-6">
+          <p class="text-2xl text-gray-700">
+            Species: <span class="font-bold text-indigo-600 text-3xl"><%= current_user.pet.species_name %></span>
+          </p>
+
+          <% next_species_entry = current_user.pet.class::SPECIES.find { |_, data| data[:unlock] > current_user.longest_streak } %>
+          <% if next_species_entry && current_user.longest_streak < 365 %>
+            <p class="text-xl text-gray-600 mt-3">
+              Next → <span class="font-bold text-purple-600"><%= next_species_entry[1][:name] %></span>
+              at <%= next_species_entry[1][:unlock] %> days
+            </p>
+          <% else %>
+            <p class="text-3xl font-bold bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 bg-clip-text text-transparent mt-4 animate-pulse">
+              Rainbow Unicorn — You are a legend
+            </p>
+          <% end %>
+        </div>
+
+        <% if flash[:resurrected] %>
+          <div class="mt-12 animate-pulse">
+            <p class="text-6xl font-black text-yellow-400 drop-shadow-2xl">BACK FROM THE DEAD</p>
+            <p class="text-3xl text-yellow-300 mt-3 font-bold">+20 levels • Immortal status unlocked</p>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
+    <!-- DEATH SCREEN -->
+    <% if current_user.pet.dead? %>
+      <div class="my-24">
+        <div class="text-9xl mb-8">Tombstone</div>
+        <h1 class="text-6xl font-black text-gray-800 mb-8"><%= current_user.pet.name %> has died</h1>
+        <p class="text-3xl text-gray-600 mb-12">"You forgot to feed me..." — <%= current_user.pet.name %></p>
+        <p class="text-2xl text-red-700 font-bold">Complete 7 perfect days to bring them back!</p>
+      </div>
+    <% end %>
+
+    <!-- TODAY'S HABITS -->
+    <div class="my-12">
+      <h2 class="text-3xl font-bold mb-8">
+        <%= current_user.pet.dead? ? "Fight to bring them back!" : "Today's Habits" %>
+      </h2>
+
+      <% if current_user.habits.any? %>
+        <div class="space-y-6 max-w-2xl mx-auto">
+          <% current_user.habits.each do |habit| %>
+            <%= link_to toggle_habit_path(habit), method: :patch,
+                class: "block p-8 rounded-3xl shadow-xl transition #{habit.completed_today? ? 'bg-green-100 border-4 border-green-400' : 'bg-white hover:bg-gray-50'}" do %>
+              <div class="flex items-center justify-between">
+                <div class="text-left">
+                  <span class="text-5xl mr-4"><%= habit.emoji %></span>
+                  <span class="text-2xl font-medium"><%= habit.name %></span>
+                </div>
+                <div class="text-7xl">
+                  <%= habit.completed_today? ? "Checkmark" : "Circle" %>
+                </div>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-xl text-gray-600">No habits yet — add your first one below!</p>
+      <% end %>
+    </div>
+
+    <!-- ALWAYS-VISIBLE BUTTONS -->
+    <div class="mt-16 space-x-8">
+      <%= link_to "Add New Habit", new_habit_path,
+          class: "bg-indigo-600 hover:bg-indigo-700 text-white text-2xl px-12 py-6 rounded-full shadow-2xl transition font-bold" %>
+
+      <%= button_to "Log out", destroy_user_session_path, method: :delete,
+          class: "bg-red-600 hover:bg-red-700 text-white text-2xl px-12 py-6 rounded-full shadow-2xl transition font-bold" %>
+    </div>
+
+    <!-- DEVELOPER TIME MACHINE — only you see this in development -->
+    <% if Rails.env.development? %>
+      <div class="fixed bottom-4 left-4 bg-black/90 text-white p-6 rounded-2xl shadow-2xl z-50 max-w-xs">
+        <h3 class="text-xl font-bold mb-4 text-yellow-400">Developer Time Machine</h3>
+        <div class="space-y-3 text-sm">
+          <%= button_to "Set all habits to YESTERDAY", debug_yesterday_path, method: :post,
+              class: "w-full bg-orange-600 hover:bg-orange-700 py-3 rounded-lg font-bold" %>
+          <%= button_to "Kill Sparkles (2 days ago)", debug_kill_path, method: :post,
+              class: "w-full bg-red-600 hover:bg-red-700 py-3 rounded-lg font-bold" %>
+          <%= button_to "Complete ALL habits TODAY", debug_complete_path, method: :post,
+              class: "w-full bg-green-600 hover:bg-green-700 py-3 rounded-lg font-bold" %>
+          <%= button_to "Reset to happy", debug_reset_path, method: :post,
+              class: "w-full bg-gray-600 hover:bg-gray-700 py-3 rounded-lg font-bold" %>
+        </div>
+      </div>
+    <% end %>
+
+  </div>
 </div>
+
+<!-- Confetti on resurrection -->
+<% if flash[:resurrected] %>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+  <script>
+    new Audio('https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3').play();
+    confetti({ particleCount: 300, spread: 120, origin: { y: 0.6 } });
+    setTimeout(() => confetti({ particleCount: 100, angle: 60, origin: { x: 0 } }), 250);
+    setTimeout(() => confetti({ particleCount: 100, angle: 120, origin: { x: 1 } }), 400);
+  </script>
+<% end %>

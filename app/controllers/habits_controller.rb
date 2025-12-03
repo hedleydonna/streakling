@@ -12,7 +12,7 @@ class HabitsController < ApplicationController
 
   # GET /habits/new
   def new
-    @habit = Habit.new
+    @habit = current_user.habits.build
   end
 
   # GET /habits/1/edit
@@ -21,16 +21,12 @@ class HabitsController < ApplicationController
 
   # POST /habits or /habits.json
   def create
-    @habit = Habit.new(habit_params)
-
-    respond_to do |format|
-      if @habit.save
-        format.html { redirect_to @habit, notice: "Habit was successfully created." }
-        format.json { render :show, status: :created, location: @habit }
-      else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @habit.errors, status: :unprocessable_entity }
-      end
+    @habit = current_user.habits.new(habit_params)   # ← this line sets user_id automatically
+  
+    if @habit.save
+      redirect_to root_path, notice: "Habit added! Feed your critter!"
+    else
+      render :new, status: :unprocessable_entity
     end
   end
 
@@ -55,6 +51,12 @@ class HabitsController < ApplicationController
       format.html { redirect_to habits_path, status: :see_other, notice: "Habit was successfully destroyed." }
       format.json { head :no_content }
     end
+  end
+
+  def toggle
+    @habit = current_user.habits.find(params[:id])
+    @habit.toggle_today!
+    redirect_to root_path
   end
 
   private
