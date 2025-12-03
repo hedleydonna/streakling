@@ -9,39 +9,34 @@
 
       <!-- PET + SPECIES + EVOLUTION INFO -->
       <div class="my-12 text-center">
-        <div class="text-9xl animate-bounce inline-block">
-          <%= current_user.pet&.emoji %>
-        </div>
-
-        <p class="text-4xl font-bold mt-8 text-gray-800">
-          <%= current_user.pet&.name %> feels <span class="text-purple-600"><%= current_user.pet&.mood.to_s.upcase %></span>
-        </p>
-
-        <div class="mt-6">
-          <p class="text-2xl text-gray-700">
-            Species: <span class="font-bold text-indigo-600 text-3xl"><%= current_user.pet&.species_name %></span>
-          </p>
-
-          <% next_species_entry = current_user.pet ? Pet::SPECIES.find { |_, data| data[:unlock] > current_user.longest_streak } : nil %>
-          <% if next_species_entry && current_user.longest_streak < 365 %>
-            <p class="text-xl text-gray-600 mt-3">
-              Next → <span class="font-bold text-purple-600"><%= next_species_entry[1][:name] %></span>
-              at <%= next_species_entry[1][:unlock] %> days
-            </p>
-          <% else %>
-            <p class="text-3xl font-bold bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 bg-clip-text text-transparent mt-4 animate-pulse">
-              Rainbow Unicorn — You are a legend
-            </p>
-          <% end %>
-        </div>
-
-        <% if flash[:resurrected] %>
-          <div class="mt-12 animate-pulse">
-            <p class="text-6xl font-black text-yellow-400 drop-shadow-2xl">BACK FROM THE DEAD</p>
-            <p class="text-3xl text-yellow-300 mt-3 font-bold">+20 levels • Immortal status unlocked</p>
-          </div>
-        <% end %>
+      <div class="<%= current_user.pet.size_class %> animate-bounce inline-block">
+        <%= current_user.pet.emoji %>
       </div>
+    
+      <p class="text-5xl font-bold mt-10 text-gray-800">
+        <%= current_user.pet.name %> is a <span class="text-purple-600"><%= current_user.pet.stage_name %></span>
+      </p>
+    
+      <p class="text-3xl font-medium mt-6 text-gray-700 italic">
+        "<%= current_user.pet.message %>"
+      </p>
+    
+      <% if current_user.pet.dead? %>
+        <p class="text-4xl text-red-700 mt-8 font-bold">Sparkles has died…</p>
+        <p class="text-2xl text-gray-600">Complete 7 perfect days to bring them back!</p>
+      <% else %>
+        <p class="text-4xl font-bold mt-8 text-gray-800">
+          <%= current_user.pet.name %> feels <span class="text-purple-600"><%= current_user.pet.mood.to_s.upcase %></span>
+        </p>
+      <% end %>
+    
+      <% if flash[:resurrected] %>
+        <div class="mt-12 animate-pulse">
+          <p class="text-7xl font-black text-yellow-400 drop-shadow-2xl">BACK FROM THE DEAD</p>
+          <p class="text-4xl text-yellow-300 mt-4 font-bold">+20 levels • Your bond is unbreakable</p>
+        </div>
+      <% end %>
+    </div>
     <% end %>
 
     <!-- DEATH SCREEN -->

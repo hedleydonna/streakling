@@ -67,6 +67,6 @@ class HabitsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def habit_params
-      params.require(:habit).permit(:name, :emoji, :user_id, :focus)
+      params.require(:habit).permit(:name, :emoji, :user_id)
     end
 end

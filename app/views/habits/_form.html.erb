@@ -26,18 +26,6 @@
     <p class="text-sm text-gray-500 text-center mt-3">Copy-paste any emoji!</p>
   </div>
 
-  <div class="mb-10 p-6 bg-purple-50 rounded-3xl border-4 border-purple-200">
-    <div class="flex items-center">
-      <%= form.check_box :focus,
-          class: "w-10 h-10 text-purple-600 rounded focus:ring-purple-500 border-gray-300" %>
-      <%= form.label :focus, "Focus Habit — affects Sparkles' life & mood", class: "ml-5 text-2xl font-bold text-purple-800" %>
-    </div>
-    <p class="mt-4 text-gray-700 leading-relaxed">
-      Only <span class="font-bold text-purple-600">Focus habits</span> decide if Sparkles lives, dies, or evolves.<br>
-      All other habits are guilt-free trackers — perfect for building slowly!
-    </p>
-  </div>
-
   <%= form.hidden_field :user_id, value: current_user.id %>
 
   <div class="text-center">

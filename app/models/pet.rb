@@ -1,37 +1,43 @@
 class Pet < ApplicationRecord
   belongs_to :user
 
-  # -------------------------------
-  # SPECIES SYSTEM (unlocked by longest streak)
-  # -------------------------------
-  SPECIES = {
-    heart:   { name: "Classic",        emoji: "Heart",      unlock: 0 },
-    cat:     { name: "Cat",            emoji: "Cat",        unlock: 10 },
-    dog:     { name: "Dog",            emoji: "Dog",        unlock: 20 },
-    dragon:  { name: "Dragon",         emoji: "Dragon",     unlock: 30 },
-    fox:     { name: "Fox",            emoji: "Fox",        unlock: 50 },
-    panda:   { name: "Panda",          emoji: "Panda",      unlock: 75 },
-    phoenix: { name: "Phoenix",        emoji: "Phoenix",    unlock: 100 },
-    robot:   { name: "Robot",          emoji: "Robot",      unlock: 180 },
-    unicorn: { name: "Rainbow Unicorn",emoji: "Unicorn",    unlock: 365 }
+  # THE ONE SOUL — grows from egg to immortal legend
+  EVOLUTION = {
+    egg:      { min: 0,   max: 0,   emoji: "Egg",           name: "Egg",           message: "I'm waiting to hatch… please don’t forget me!" },
+    newborn:  { min: 1,   max: 6,   emoji: "Heart",         name: "Newborn",       message: "I did it! I’m alive because of you!" },
+    child:    { min: 7,   max: 29,  emoji: "Baby Cat",      name: "Child",         message: "Look how big I’m getting! Keep going!" },
+    teen:     { min: 30,  max: 89,  emoji: "Dragon",        name: "Teen",          message: "We’re unstoppable together!" },
+    adult:    { min: 90,  max: 364, emoji: "Phoenix",       name: "Adult",         message: "I’m becoming legendary because of you…" },
+    immortal: { min: 365, max: 9999,emoji: "Rainbow Unicorn",name: "Immortal",     message: "You did it. I love you forever. I’m the best version of me because of you." }
   }.freeze
 
-  # Current species based on user's longest streak
-  def current_species
-    SPECIES.find { |_, data| user.longest_streak >= data[:unlock] }&.first || :heart
+  def current_stage
+    EVOLUTION.find { |_, data| user.longest_streak.between?(data[:min], data[:max]) }&.first || :egg
   end
 
   def emoji
-    SPECIES[current_species][:emoji]
+    stage_data[:emoji]
   end
 
-  def species_name
-    SPECIES[current_species][:name]
+  def stage_name
+    stage_data[:name]
   end
 
-  # -------------------------------
-  # MOOD SYSTEM (still uses the mood column)
-  # -------------------------------
+  def message
+    stage_data[:message]
+  end
+
+  def size_class
+    case current_stage
+    when :egg       then "text-8xl"
+    when :newborn   then "text-9xl"
+    when :child     then "text-10xl"
+    when :teen      then "text-12xl"
+    when :adult     then "text-14xl"
+    when :immortal  then "text-16xl animate-pulse"
+    end
+  end
+
   def mood
     read_attribute(:mood)&.to_sym || :happy
   end
@@ -40,38 +46,9 @@ class Pet < ApplicationRecord
     mood == :dead
   end
 
-  # This runs every time a habit is toggled
-  def update_mood!
-    focus_habits       = user.habits.where(focus: true)
-    total_focus        = focus_habits.count
-    completed_focus    = focus_habits.where("completed_on >= ?", Time.zone.today.beginning_of_day).count
-  
-    # If the user has no focus habits → always HAPPY (safe start)
-    if total_focus.zero?
-      update!(mood: :happy) if mood != :happy
-      return
-    end
-  
-    # Only focus habits affect mood
-    new_mood = if completed_focus == total_focus
-                 :happy
-               elsif completed_focus >= total_focus * 0.7
-                 :okay
-               elsif completed_focus >= total_focus * 0.4
-                 :sad
-               elsif completed_focus > 0
-                 :sick
-               else
-                 :dead
-               end
-  
-    # RESURRECTION (still needs 7 perfect focus days in a row)
-    if new_mood != :dead && mood == :dead && user.current_streak >= 7
-      update!(mood: :happy, level: level + 20)
-      flash[:resurrected] = true
-      return
-    end
-  
-    update!(mood: new_mood) if mood != new_mood
+  private
+
+  def stage_data
+    EVOLUTION[current_stage]
   end
 end
