@@ -56,6 +56,7 @@ class HabitsController < ApplicationController
   def toggle
     @habit = current_user.habits.find(params[:id])
     @habit.toggle_today!
+    @habit.user.pet.update_mood_and_streak!  # ← THIS IS THE KEY LINE
     redirect_to root_path
   end
 

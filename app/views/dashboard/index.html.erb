@@ -29,6 +29,52 @@
           <%= current_user.pet.name %> feels <span class="text-purple-600"><%= current_user.pet.mood.to_s.upcase %></span>
         </p>
       <% end %>
+
+      <div class="mt-6">
+  <% total_habits = current_user.habits.count %>
+  <% completed_today = current_user.habits.where(completed_on: Time.zone.today).count %>
+  <% percentage = total_habits.zero? ? 100 : (completed_today * 100 / total_habits) %>
+
+  <p class="text-3xl font-bold text-gray-800 mb-4">
+    Today's Score: <span class="text-indigo-600"><%= percentage %>%</span>
+  </p>
+
+  <p class="text-xl text-gray-600 mb-8">
+    You completed <%= completed_today %> out of <%= total_habits %> habits today.
+  </p>
+
+  <% if percentage < 100 %>
+    <p class="text-2xl text-red-600 font-bold mb-4">
+      To improve:
+    </p>
+    <ul class="text-left max-w-md mx-auto space-y-2">
+      <% current_user.habits.where.not(completed_on: Time.zone.today).each do |habit| %>
+        <li class="text-lg text-gray-700">
+          <%= habit.emoji %> <%= habit.name %> — not done today
+        </li>
+      <% end %>
+    </ul>
+    <p class="mt-6 text-xl text-gray-700">
+      Finish the ones above to make Sparkles happy and keep your streak!
+    </p>
+  <% else %>
+    <p class="text-3xl text-green-600 font-bold">
+      Perfect Day! Sparkles is thriving.
+    </p>
+  <% end %>
+</div>
+
+<div class="mt-8 p-8 bg-gradient-to-r from-purple-100 to-pink-100 rounded-3xl">
+  <p class="text-4xl font-bold text-purple-800">
+    Lifetime Points: <%= current_user.daily_points %>
+  </p>
+  <p class="text-2xl text-gray-700 mt-4">
+    Every 10 points = 1 day toward Sparkles' growth
+  </p>
+  <p class="text-5xl font-black text-indigo-600 mt-6">
+    Current Streak: <%= current_user.current_streak %> days
+  </p>
+</div>
     
       <% if flash[:resurrected] %>
         <div class="mt-12 animate-pulse">

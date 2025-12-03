@@ -4,13 +4,13 @@ class DebugController < ApplicationController
 
   def yesterday
     current_user.habits.update_all(completed_on: 1.day.ago.to_date)
-    current_user.pet.update_mood!
+    current_user.pet.update_mood_and_streak!
     redirect_to root_path, notice: "All habits set to YESTERDAY — Sparkles is sad"
   end
 
   def kill 
     current_user.habits.update_all(completed_on: 2.days.ago.to_date)
-    current_user.pet.update_mood!
+    current_user.pet.update_mood_and_streak!
     redirect_to root_path, alert: "SPARKLES IS DEAD"
   end
 
@@ -26,13 +26,13 @@ class DebugController < ApplicationController
     end
   
     # Normal path if not dead
-    current_user.pet.update_mood!
+    current_user.pet.update_mood_and_streak!
     redirect_to root_path, notice: "Habits completed today"
   end
 
   def reset
-    current_user.habits.update_all(completed_on: Time.zone.today)
-    current_user.pet.update!(mood: :happy)
+      current_user.habits.update_all(completed_on: Time.zone.today)
+    current_user.pet.update_mood_and_streak!
     redirect_to root_path, notice: "Everything reset — Sparkles is HAPPY again"
   end
 

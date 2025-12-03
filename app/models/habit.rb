@@ -12,7 +12,7 @@ class Habit < ApplicationRecord
       update!(completed_on: nil)
     else
       update!(completed_on: Time.zone.today)
-      user.pet&.update_mood!  # Critter reacts instantly!
+      user.pet&.update_mood_and_streak!  # Critter reacts instantly!
     end
   end
 end
