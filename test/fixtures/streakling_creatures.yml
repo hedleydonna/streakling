@@ -2,7 +2,7 @@
 
 one:
   habit: one
-  name: MyString
+  streakling_name: MyString
   animal_type: MyString
   current_streak: 1
   longest_streak: 1
@@ -15,7 +15,7 @@ one:
 
 two:
   habit: two
-  name: MyString
+  streakling_name: MyString
   animal_type: MyString
   current_streak: 1
   longest_streak: 1

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_12_04_000001) do
+ActiveRecord::Schema[7.1].define(version: 2025_12_04_191235) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -23,16 +23,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_12_04_000001) do
     t.date "completed_on"
     t.text "description"
     t.index ["user_id"], name: "index_habits_on_user_id"
-  end
-
-  create_table "pets", force: :cascade do |t|
-    t.string "name"
-    t.string "mood"
-    t.integer "level"
-    t.bigint "user_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["user_id"], name: "index_pets_on_user_id"
   end
 
   create_table "streakling_creatures", force: :cascade do |t|
@@ -69,6 +59,5 @@ ActiveRecord::Schema[7.1].define(version: 2025_12_04_000001) do
   end
 
   add_foreign_key "habits", "users"
-  add_foreign_key "pets", "users"
   add_foreign_key "streakling_creatures", "habits"
 end
