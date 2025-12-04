@@ -18,8 +18,7 @@ class Habit < ApplicationRecord
     "📝"
   end
 
-  private
-
+  # Public method to ensure a habit has a streakling creature
   def ensure_streakling_creature!
     # Only create if one doesn't already exist (e.g., when created via nested attributes)
     return if streakling_creature.present?
