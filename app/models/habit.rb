@@ -2,6 +2,9 @@ class Habit < ApplicationRecord
   belongs_to :user
   has_one :streakling_creature, dependent: :destroy
 
+  validates :habit_name, presence: true
+  validates :user_id, presence: true
+
   # Accept nested attributes for streakling creature
   accepts_nested_attributes_for :streakling_creature, allow_destroy: true
 

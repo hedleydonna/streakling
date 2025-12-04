@@ -2,44 +2,62 @@ require "application_system_test_case"
 
 class HabitsTest < ApplicationSystemTestCase
   setup do
+    @user = users(:one)
     @habit = habits(:one)
   end
 
-  test "visiting the index" do
-    visit habits_url
-    assert_selector "h1", text: "Habits"
+  test "visiting the dashboard shows habits" do
+    sign_in @user
+    visit root_path
+    assert_selector "h1", text: "Streakland Dashboard"
   end
 
-  test "should create habit" do
-    visit habits_url
-    click_on "New habit"
+  test "should create habit with creature" do
+    sign_in @user
+    visit root_path
 
-    fill_in "Emoji", with: @habit.emoji
-    fill_in "Name", with: @habit.name
-    fill_in "User", with: @habit.user_id
-    click_on "Create Habit"
+    # Navigate to new habit page
+    click_link "New Habit"
 
-    assert_text "Habit was successfully created"
-    click_on "Back"
+    fill_in "Habit Name", with: "Test System Habit"
+    fill_in "Description", with: "A habit created by system test"
+    fill_in "Streakling Name", with: "System Creature"
+    choose "animal_phoenix" # Select phoenix
+
+    click_button "Create Habit & Creature"
+
+    assert_text "Habit & Creature were successfully created"
+    assert_current_path habits_path
   end
 
-  test "should update Habit" do
-    visit habit_url(@habit)
-    click_on "Edit this habit", match: :first
+  test "should toggle habit completion" do
+    sign_in @user
+    visit root_path
 
-    fill_in "Emoji", with: @habit.emoji
-    fill_in "Name", with: @habit.name
-    fill_in "User", with: @habit.user_id
-    click_on "Update Habit"
+    # Find the habit card and click toggle
+    within ".bg-white.rounded-3xl" do
+      click_button "Complete Today"
+    end
 
-    assert_text "Habit was successfully updated"
-    click_on "Back"
+    # Should show success message via turbo stream
+    assert_text "Habit completed!"
   end
 
-  test "should destroy Habit" do
-    visit habit_url(@habit)
-    click_on "Destroy this habit", match: :first
+  test "should show creature evolution" do
+    sign_in @user
+    visit root_path
 
-    assert_text "Habit was successfully destroyed"
+    # Check that creature information is displayed
+    assert_text "Spark" # Creature name from fixture
+    assert_text "🐉" # Dragon emoji
+  end
+
+  test "should handle authentication" do
+    visit root_path
+    assert_current_path new_user_session_path
+
+    sign_in @user
+    visit root_path
+    assert_current_path root_path
   end
 end

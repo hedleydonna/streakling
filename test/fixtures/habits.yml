@@ -1,11 +1,19 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  habit_name: MyString
-  emoji: MyString
+  habit_name: "Exercise daily"
+  description: "Go to the gym or do home workouts"
+  completed_on: <%= Date.today %>
   user: one
 
 two:
-  habit_name: MyString
-  emoji: MyString
+  habit_name: "Read for 30 minutes"
+  description: "Read books, articles, or educational content"
+  completed_on: <%= 1.day.ago.to_date %>
+  user: one
+
+three:
+  habit_name: "Meditate"
+  description: "Practice mindfulness meditation"
+  completed_on: <%= 2.days.ago.to_date %>
   user: two

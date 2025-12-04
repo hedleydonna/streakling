@@ -33,6 +33,6 @@ class DebugController < ApplicationController
   private
 
   def ensure_development!
-    raise "Debug mode only works in development!" unless Rails.env.development?
+    raise "Debug mode only works in development or test!" unless Rails.env.development? || Rails.env.test?
   end
 end

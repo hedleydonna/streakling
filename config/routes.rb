@@ -1,11 +1,11 @@
 Rails.application.routes.draw do
   # ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←
-  # DEBUG TIME MACHINE — ONLY IN DEVELOPMENT
-  if Rails.env.development?
-    get 'debug/yesterday'
-    get 'debug/kill'
-    get 'debug/complete_today'
-    get 'debug/reset'
+  # DEBUG TIME MACHINE — DEVELOPMENT AND TEST ENVIRONMENTS
+  if Rails.env.development? || Rails.env.test?
+    get 'debug/yesterday', as: :debug_yesterday
+    get 'debug/kill', as: :debug_kill
+    get 'debug/complete_today', as: :debug_complete_today
+    get 'debug/reset', as: :debug_reset
   end
   # ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←
 

@@ -2,26 +2,39 @@
 
 one:
   habit: one
-  streakling_name: MyString
-  animal_type: MyString
-  current_streak: 1
-  longest_streak: 1
-  mood: MyString
-  consecutive_missed_days: 1
+  streakling_name: "Spark"
+  animal_type: "dragon"
+  current_streak: 25
+  longest_streak: 30
+  mood: "happy"
+  consecutive_missed_days: 0
   is_dead: false
-  died_at: 2025-12-03
-  revived_count: 1
-  stage: MyString
+  revived_count: 0
+  stage: "child"
+  became_eternal_at:
 
 two:
   habit: two
-  streakling_name: MyString
-  animal_type: MyString
-  current_streak: 1
-  longest_streak: 1
-  mood: MyString
+  streakling_name: "Luna"
+  animal_type: "fox"
+  current_streak: 5
+  longest_streak: 8
+  mood: "okay"
   consecutive_missed_days: 1
   is_dead: false
-  died_at: 2025-12-03
-  revived_count: 1
-  stage: MyString
+  revived_count: 0
+  stage: "newborn"
+  became_eternal_at:
+
+eternal_creature:
+  habit: three
+  streakling_name: "Eternal One"
+  animal_type: "phoenix"
+  current_streak: 350
+  longest_streak: 350
+  mood: "happy"
+  consecutive_missed_days: 0
+  is_dead: false
+  revived_count: 0
+  stage: "eternal"
+  became_eternal_at: <%= 1.year.ago.to_date %>

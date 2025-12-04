@@ -1,5 +1,7 @@
 class HabitsController < ApplicationController
-  before_action :set_habit, only: %i[ show edit update destroy ]
+  before_action :authenticate_user!
+  before_action :set_habit, only: %i[ show edit update destroy toggle ]
+  before_action :authorize_habit_owner, only: %i[ show edit update destroy toggle ]
 
   # GET /habits or /habits.json
   def index
@@ -76,6 +78,12 @@ class HabitsController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_habit
       @habit = Habit.find(params[:id])
+    end
+
+    def authorize_habit_owner
+      unless @habit.user == current_user
+        redirect_to root_path, alert: "You can only access your own habits."
+      end
     end
 
     # Only allow a list of trusted parameters through.
