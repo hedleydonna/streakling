@@ -9,6 +9,19 @@
       Your Streaklings live in Streakland
     </p>
 
+    <% if current_user.admin? %>
+      <div class="bg-yellow-100 border-4 border-yellow-400 rounded-3xl p-6 mb-8">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-2xl font-bold text-yellow-800 mb-2">Admin Access</h2>
+            <p class="text-yellow-700">You have administrator privileges</p>
+          </div>
+          <%= link_to "Admin Dashboard", admin_dashboard_path,
+              class: "bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-3 rounded-xl font-medium transition" %>
+        </div>
+      </div>
+    <% end %>
+
     <!-- ALL STREAKLINGS -->
     <% if current_user.habits.any? %>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 mb-20">

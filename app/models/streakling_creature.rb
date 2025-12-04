@@ -1,6 +1,8 @@
 class StreaklingCreature < ApplicationRecord
   belongs_to :habit
 
+  validates :habit_id, uniqueness: true
+
   # So we can do creature.user
   delegate :user, to: :habit
   delegate :completed_on, to: :habit, allow_nil: true
@@ -80,37 +82,8 @@ class StreaklingCreature < ApplicationRecord
     end
   end
 
-  def update_streak_and_stage!
-    if habit.completed_today?
-      self.current_streak += 1
-      self.longest_streak = [longest_streak, current_streak].max
-      self.mood = "happy"
-      self.consecutive_missed_days = 0
-    else
-      # Missed today
-      self.current_streak = 0
-      self.consecutive_missed_days += 1
-
-      self.mood = case consecutive_missed_days
-                  when 1..4 then "sad"
-                  when 5..20 then "sick"
-                  else "dead"
-                  end
-    end
-
-    # Update stage
-    self.stage = case current_streak
-                 when 0      then "egg"
-                 when 1..6   then "newborn"
-                 when 7..21  then "baby"
-                 when 22..44 then "child"
-                 when 45..79 then "teen"
-                 when 80..149 then "adult"
-                 when 150..299 then "master"
-                 else "eternal"
-                 end
-
-    save!
+  def eternal?
+    stage == 'eternal'
   end
 
   def update_streak_and_mood!

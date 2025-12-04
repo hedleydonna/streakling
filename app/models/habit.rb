@@ -3,7 +3,7 @@ class Habit < ApplicationRecord
   has_one :streakling_creature, dependent: :destroy
 
   # Accept nested attributes for streakling creature
-  accepts_nested_attributes_for :streakling_creature
+  accepts_nested_attributes_for :streakling_creature, allow_destroy: true
 
   # Every time a habit is created, a new Streakling is born
   after_create :ensure_streakling_creature!

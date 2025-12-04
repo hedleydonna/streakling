@@ -1,0 +1,135 @@
+<div class="min-h-screen bg-gray-100 py-12 px-4">
+  <div class="max-w-4xl mx-auto">
+    <div class="mb-8">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-4xl font-bold text-gray-800">Habit & Creature Details</h1>
+          <p class="text-gray-600"><%= @habit.display_emoji %> <%= @habit.habit_name %></p>
+        </div>
+        <div class="space-x-4">
+          <%= link_to "Edit Habit & Creature", edit_admin_habit_path(@habit), class: "bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium" %>
+          <%= link_to "Back to Habits", admin_habits_path, class: "bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-medium" %>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- Habit Info -->
+      <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-xl font-semibold mb-4">Habit Information</h2>
+        <dl class="space-y-3">
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Name</dt>
+            <dd class="text-sm text-gray-900"><%= @habit.habit_name %></dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Description</dt>
+            <dd class="text-sm text-gray-900"><%= @habit.description.presence || "No description" %></dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Completed On</dt>
+            <dd class="text-sm text-gray-900">
+              <%= @habit.completed_on&.strftime('%B %d, %Y') || "Never completed" %>
+            </dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Completed Today?</dt>
+            <dd class="text-sm text-gray-900">
+              <% if @habit.completed_today? %>
+                <span class="text-green-600 font-medium">✅ Yes</span>
+              <% else %>
+                <span class="text-red-600 font-medium">❌ No</span>
+              <% end %>
+            </dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Created</dt>
+            <dd class="text-sm text-gray-900"><%= @habit.created_at.strftime('%B %d, %Y at %I:%M %p') %></dd>
+          </div>
+        </dl>
+      </div>
+
+      <!-- User Info -->
+      <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-xl font-semibold mb-4">User Information</h2>
+        <dl class="space-y-3">
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Email</dt>
+            <dd class="text-sm text-gray-900"><%= @habit.user.email %></dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Admin Status</dt>
+            <dd class="text-sm text-gray-900">
+              <% if @habit.user.admin? %>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                  Administrator
+                </span>
+              <% else %>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                  Regular User
+                </span>
+              <% end %>
+            </dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Current Streak</dt>
+            <dd class="text-sm text-gray-900"><%= @habit.user.current_streak || 0 %> days</dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Total Habits</dt>
+            <dd class="text-sm text-gray-900"><%= @habit.user.habits.count %></dd>
+          </div>
+        </dl>
+      </div>
+
+      <!-- Streakling Creature -->
+      <div class="bg-white rounded-lg shadow p-6 lg:col-span-2">
+        <h2 class="text-xl font-semibold mb-4">Streakling Creature</h2>
+        <% if @habit.streakling_creature %>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="text-center">
+              <div class="text-6xl mb-2"><%= @habit.streakling_creature.emoji %></div>
+              <div class="text-lg font-medium"><%= @habit.streakling_creature.streakling_name %></div>
+              <div class="text-sm text-gray-500"><%= @habit.streakling_creature.animal_type&.capitalize %></div>
+            </div>
+
+            <div>
+              <h3 class="font-medium mb-2">Stage & Mood</h3>
+              <div class="space-y-1">
+                <div>Stage: <%= @habit.streakling_creature.stage_emoji %> <%= @habit.streakling_creature.stage_name %></div>
+                <div>Mood: <%= @habit.streakling_creature.mood_emoji %> <%= @habit.streakling_creature.mood&.capitalize %></div>
+              </div>
+            </div>
+
+            <div>
+              <h3 class="font-medium mb-2">Statistics</h3>
+              <div class="space-y-1">
+                <div>Current Streak: <%= @habit.streakling_creature.current_streak %></div>
+                <div>Longest Streak: <%= @habit.streakling_creature.longest_streak %></div>
+                <div>Missed Days: <%= @habit.streakling_creature.consecutive_missed_days %></div>
+                <div>Status:
+                  <% if @habit.streakling_creature.is_dead? %>
+                    <span class="text-red-600">💀 Dead</span>
+                  <% elsif @habit.streakling_creature.stage == 'eternal' %>
+                    <span class="text-yellow-600">🌈 Eternal</span>
+                  <% else %>
+                    <span class="text-green-600">💚 Alive</span>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-6 pt-6 border-t border-gray-200">
+            <%= link_to "Edit Habit & Creature", edit_admin_habit_path(@habit), class: "bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium" %>
+          </div>
+        <% else %>
+          <div class="text-center py-8">
+            <div class="text-4xl mb-4">🐣</div>
+            <p class="text-gray-500">No creature has hatched for this habit yet.</p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

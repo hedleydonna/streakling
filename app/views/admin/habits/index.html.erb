@@ -1,0 +1,68 @@
+<div class="min-h-screen bg-gray-100 py-12 px-4">
+  <div class="max-w-7xl mx-auto">
+    <div class="mb-8">
+      <div class="flex justify-between items-center">
+        <div>
+          <h1 class="text-4xl font-bold text-gray-800">Admin - Habits & Creatures</h1>
+          <p class="text-gray-600">Manage habits and their associated creatures</p>
+        </div>
+        <div class="space-x-4">
+          <%= link_to "New Habit & Creature", new_admin_habit_path, class: "bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium" %>
+          <%= link_to "Back to Dashboard", admin_dashboard_path, class: "bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-medium" %>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Habit</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Completed</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Creature</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% @habits.each do |habit| %>
+            <tr>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-medium text-gray-900"><%= habit.habit_name %></div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900"><%= habit.user.email %></div>
+              </td>
+              <td class="px-6 py-4">
+                <div class="text-sm text-gray-900 max-w-xs truncate">
+                  <%= habit.description.presence || "No description" %>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <%= habit.completed_today? ? "✅ Today" : (habit.completed_on&.strftime('%b %d') || "Never") %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <% if habit.streakling_creature %>
+                  <div class="text-sm text-gray-900">
+                    <%= habit.streakling_creature.emoji %> <%= habit.streakling_creature.streakling_name %>
+                  </div>
+                  <div class="text-xs text-gray-500">
+                    <%= habit.streakling_creature.stage_name %> • <%= habit.streakling_creature.mood_emoji %>
+                  </div>
+                <% else %>
+                  <span class="text-red-500 text-sm">No creature</span>
+                <% end %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <%= link_to "View", admin_habit_path(habit), class: "text-indigo-600 hover:text-indigo-900 mr-4" %>
+                <%= link_to "Edit", edit_admin_habit_path(habit), class: "text-blue-600 hover:text-blue-900 mr-4" %>
+                <%= button_to "Delete", admin_habit_path(habit), method: :delete, data: { confirm: "Are you sure you want to delete this habit? This will also delete the associated creature." }, class: "text-red-600 hover:text-red-900 bg-transparent border-0 p-0 cursor-pointer" %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

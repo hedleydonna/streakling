@@ -9,6 +9,13 @@ Rails.application.routes.draw do
   end
   # ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←
 
+  # Admin namespace - accessible to admin users
+  namespace :admin do
+    get 'dashboard', to: 'dashboard#index'
+    resources :users
+    resources :habits
+  end
+
   resources :habits
   devise_for :users
 

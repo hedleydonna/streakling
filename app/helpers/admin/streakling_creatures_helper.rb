@@ -1,0 +1,2 @@
+module Admin::StreaklingCreaturesHelper
+end

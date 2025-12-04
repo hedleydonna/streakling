@@ -5,9 +5,6 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable
 
   has_many :habits, dependent: :destroy
-  has_one  :pet,    dependent: :destroy
-
-  after_create :create_default_pet
 
   # Current streak: how many consecutive perfect days ending today
   def current_streak
@@ -56,11 +53,11 @@ class User < ApplicationRecord
       .count { |date| perfect_day?(date) }
   end
 
-  private
-
-  def create_default_pet
-    create_pet!(name: "Sparkles", mood: "happy", level: 1)
+  def admin?
+    admin
   end
+
+  private
 
   # Was every habit completed on this exact date?
   def perfect_day?(date)
