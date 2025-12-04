@@ -13,6 +13,11 @@ class Habit < ApplicationRecord
     completed_on == Time.zone.today
   end
 
+  # Default emoji for habits (creature provides the main visual identity)
+  def display_emoji
+    "📝"
+  end
+
   private
 
   def ensure_streakling_creature!

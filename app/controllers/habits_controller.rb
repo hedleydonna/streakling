@@ -80,6 +80,6 @@ class HabitsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def habit_params
-      params.require(:habit).permit(:habit_name, :description, :emoji, streakling_creature_attributes: [:id, :streakling_name, :animal_type])
+      params.require(:habit).permit(:habit_name, :description, streakling_creature_attributes: [:id, :streakling_name, :animal_type])
     end
 end

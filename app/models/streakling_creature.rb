@@ -55,6 +55,31 @@ class StreaklingCreature < ApplicationRecord
     end
   end
 
+  def mood_emoji
+    case mood&.to_sym
+    when :happy then "😊"
+    when :okay  then "😐"
+    when :sad   then "😢"
+    when :sick  then "🤒"
+    when :dead  then "💀"
+    else "😊"
+    end
+  end
+
+  def stage_emoji
+    case stage&.to_sym
+    when :egg     then "🥚"
+    when :newborn then "✨"
+    when :baby    then "👶"
+    when :child   then "👦"
+    when :teen    then "🧑"
+    when :adult   then "👨"
+    when :master  then "👑"
+    when :eternal then "🌈"
+    else "🥚"
+    end
+  end
+
   def update_streak_and_stage!
     if habit.completed_today?
       self.current_streak += 1
@@ -65,14 +90,14 @@ class StreaklingCreature < ApplicationRecord
       # Missed today
       self.current_streak = 0
       self.consecutive_missed_days += 1
-  
+
       self.mood = case consecutive_missed_days
                   when 1..4 then "sad"
                   when 5..20 then "sick"
                   else "dead"
                   end
     end
-  
+
     # Update stage
     self.stage = case current_streak
                  when 0      then "egg"
@@ -84,7 +109,7 @@ class StreaklingCreature < ApplicationRecord
                  when 150..299 then "master"
                  else "eternal"
                  end
-  
+
     save!
   end
 

@@ -1,8 +1,14 @@
 Rails.application.routes.draw do
-  get 'debug/yesterday'
-  get 'debug/kill'
-  get 'debug/complete_today'
-  get 'debug/reset'
+  # ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←
+  # DEBUG TIME MACHINE — ONLY IN DEVELOPMENT
+  if Rails.env.development?
+    get 'debug/yesterday'
+    get 'debug/kill'
+    get 'debug/complete_today'
+    get 'debug/reset'
+  end
+  # ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←
+
   resources :habits
   devise_for :users
 
@@ -20,17 +26,4 @@ Rails.application.routes.draw do
 
   # Nice URLs (optional but clean)
   get "/dashboard", to: "dashboard#index"
-
-
-  # ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←
-  # DEBUG TIME MACHINE — ONLY IN DEVELOPMENT
-  if Rails.env.development?
-    namespace :debug do
-      post :yesterday, action: :set_yesterday
-      post :kill,      action: :kill
-      post :complete,  action: :complete_today
-      post :reset,     action: :reset
-    end
-  end
-  # ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←
 end
