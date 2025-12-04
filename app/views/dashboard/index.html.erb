@@ -1,159 +1,112 @@
-<div class="min-h-screen bg-gradient-to-b from-purple-50 to-pink-50 py-12 px-4">
-  <div class="max-w-5xl mx-auto text-center">
+<div class="min-h-screen bg-gradient-to-b from-sky-100 to-purple-100 py-12 px-4" id="streakland-bg">
+  <div class="max-w-7xl mx-auto text-center">
 
-    <!-- NORMAL DASHBOARD (when alive) -->
-    <% unless current_user.pet&.dead? %>
-      <h1 class="text-5xl font-bold mb-8 text-gray-800">
-        Welcome back, <%= current_user.email.split("@").first.capitalize %>!
-      </h1>
-
-      <!-- PET + SPECIES + EVOLUTION INFO -->
-      <div class="my-12 text-center">
-      <div class="<%= current_user.pet.size_class %> animate-bounce inline-block">
-        <%= current_user.pet.emoji %>
-      </div>
-    
-      <p class="text-5xl font-bold mt-10 text-gray-800">
-        <%= current_user.pet.name %> is a <span class="text-purple-600"><%= current_user.pet.stage_name %></span>
-      </p>
-    
-      <p class="text-3xl font-medium mt-6 text-gray-700 italic">
-        "<%= current_user.pet.message %>"
-      </p>
-    
-      <% if current_user.pet.dead? %>
-        <p class="text-4xl text-red-700 mt-8 font-bold">Sparkles has died…</p>
-        <p class="text-2xl text-gray-600">Complete 7 perfect days to bring them back!</p>
-      <% else %>
-        <p class="text-4xl font-bold mt-8 text-gray-800">
-          <%= current_user.pet.name %> feels <span class="text-purple-600"><%= current_user.pet.mood.to_s.upcase %></span>
-        </p>
-      <% end %>
-
-      <div class="mt-6">
-  <% total_habits = current_user.habits.count %>
-  <% completed_today = current_user.habits.where(completed_on: Time.zone.today).count %>
-  <% percentage = total_habits.zero? ? 100 : (completed_today * 100 / total_habits) %>
-
-  <p class="text-3xl font-bold text-gray-800 mb-4">
-    Today's Score: <span class="text-indigo-600"><%= percentage %>%</span>
-  </p>
-
-  <p class="text-xl text-gray-600 mb-8">
-    You completed <%= completed_today %> out of <%= total_habits %> habits today.
-  </p>
-
-  <% if percentage < 100 %>
-    <p class="text-2xl text-red-600 font-bold mb-4">
-      To improve:
+    <!-- WELCOME -->
+    <h1 class="text-6xl font-black text-gray-800 mb-4">
+      Welcome back, <%= current_user.email.split("@").first.capitalize %>!
+    </h1>
+    <p class="text-3xl text-purple-700 mb-16 font-medium">
+      Your Streaklings live in Streakland
     </p>
-    <ul class="text-left max-w-md mx-auto space-y-2">
-      <% current_user.habits.where.not(completed_on: Time.zone.today).each do |habit| %>
-        <li class="text-lg text-gray-700">
-          <%= habit.emoji %> <%= habit.name %> — not done today
-        </li>
-      <% end %>
-    </ul>
-    <p class="mt-6 text-xl text-gray-700">
-      Finish the ones above to make Sparkles happy and keep your streak!
-    </p>
-  <% else %>
-    <p class="text-3xl text-green-600 font-bold">
-      Perfect Day! Sparkles is thriving.
-    </p>
-  <% end %>
-</div>
 
-<div class="mt-8 p-8 bg-gradient-to-r from-purple-100 to-pink-100 rounded-3xl">
-  <p class="text-4xl font-bold text-purple-800">
-    Lifetime Points: <%= current_user.daily_points %>
-  </p>
-  <p class="text-2xl text-gray-700 mt-4">
-    Every 10 points = 1 day toward Sparkles' growth
-  </p>
-  <p class="text-5xl font-black text-indigo-600 mt-6">
-    Current Streak: <%= current_user.current_streak %> days
-  </p>
-</div>
-    
-      <% if flash[:resurrected] %>
-        <div class="mt-12 animate-pulse">
-          <p class="text-7xl font-black text-yellow-400 drop-shadow-2xl">BACK FROM THE DEAD</p>
-          <p class="text-4xl text-yellow-300 mt-4 font-bold">+20 levels • Your bond is unbreakable</p>
-        </div>
-      <% end %>
-    </div>
-    <% end %>
+    <!-- ALL STREAKLINGS -->
+    <% if current_user.habits.any? %>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 mb-20">
+        <% current_user.habits.includes(:streakling_creature).order(:created_at).each do |habit| %>
+          <% creature = habit.streakling_creature %>
 
-    <!-- DEATH SCREEN -->
-    <% if current_user.pet&.dead? %>
-      <div class="my-24">
-        <div class="text-9xl mb-8">Tombstone</div>
-        <h1 class="text-6xl font-black text-gray-800 mb-8"><%= current_user.pet.name %> has died</h1>
-        <p class="text-3xl text-gray-600 mb-12">"You forgot to feed me..." — <%= current_user.pet.name %></p>
-        <p class="text-2xl text-red-700 font-bold">Complete 7 perfect days to bring them back!</p>
-      </div>
-    <% end %>
-
-    <!-- TODAY'S HABITS -->
-    <div class="my-12">
-      <h2 class="text-3xl font-bold mb-8">
-        <%= current_user.pet&.dead? ? "Fight to bring them back!" : "Today's Habits" %>
-      </h2>
-
-      <% if current_user.habits.any? %>
-        <div class="space-y-6 max-w-2xl mx-auto">
-          <% current_user.habits.each do |habit| %>
-            <%= button_to toggle_habit_path(habit), method: :patch,
-                class: "block p-8 rounded-3xl shadow-xl transition #{habit.completed_today? ? 'bg-green-100 border-4 border-green-400' : 'bg-white hover:bg-gray-50'}" do %>
-              <div class="flex items-center justify-between">
-                <div class="text-left">
-                  <span class="text-5xl mr-4"><%= habit.emoji %></span>
-                  <span class="text-2xl font-medium"><%= habit.name %></span>
-                </div>
-                <div class="text-7xl">
-                  <%= habit.completed_today? ? "✓" : "○" %>
-                </div>
+          <%= turbo_frame_tag "habit_#{habit.id}" do %>
+          <div class="bg-white/95 backdrop-blur-lg rounded-3xl shadow-2xl p-10 transform hover:scale-105 transition-all duration-300 border-4 border-purple-100 h-[600px] flex flex-col overflow-hidden">
+            <!-- Header section - fixed height -->
+            <div class="flex-shrink-0">
+              <div class="text-4xl mb-4 text-center">
+                <%= creature&.emoji || "🐉" %>
               </div>
-            <% end %>
 
-            <!-- EDIT/DELETE LINKS below each habit -->
-            <div class="text-center mt-2 space-x-4">
-              <%= link_to edit_habit_path(habit), class: "text-gray-500 hover:text-purple-600 transition text-sm" do %>
-                Edit
-              <% end %>
-              <%= button_to habit_path(habit), method: :delete,
-                    data: { turbo_confirm: "Do you really want to delete this habit?" },
-                    class: "text-red-500 hover:text-red-700 transition text-sm" do %>
-                Delete
+              <h3 class="text-2xl font-bold text-gray-800 mb-2 text-center">
+                <%= creature&.streakling_name.presence || "Little One" %>
+              </h3>
+              <p class="text-xl text-purple-600 font-medium mb-4 text-center">
+                <%= creature&.stage_name || "Egg" %> <%= (creature&.animal_type || "dragon").capitalize %>
+              </p>
+            </div>
+
+            <!-- Message section - fixed height -->
+            <div class="flex-shrink-0 my-8 p-6 bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl border-2 border-purple-200 h-[120px] flex items-center">
+              <p class="text-xl italic text-gray-700 leading-relaxed w-full text-center">
+                "<%= creature&.message || "I'm waiting for you..." %>"
+              </p>
+            </div>
+
+            <!-- Status section - fixed height -->
+            <div class="flex-shrink-0 flex justify-around text-lg font-medium mb-4 h-[30px]">
+              <div>Mood: <span class="text-green-600"><%= (creature&.mood || "happy").capitalize %></span></div>
+              <div>Streak: <span class="text-indigo-600"><%= creature&.current_streak || 0 %> days</span></div>
+            </div>
+
+            <!-- Description section - fixed height -->
+            <div class="flex-shrink-0 mb-4 h-[50px] flex items-center justify-center">
+              <% if habit.description.present? %>
+                <p class="text-sm text-gray-600 text-center italic px-4">
+                  "<%= habit&.description %>"
+                </p>
+              <% else %>
+                <p class="text-sm text-gray-400 text-center italic">
+                  No description
+                </p>
               <% end %>
             </div>
+
+            <!-- Dead section placeholder - fixed height -->
+            <div class="flex-shrink-0 mb-4 h-[60px]">
+              <% if creature&.is_dead %>
+                <div class="p-3 bg-red-100 border-4 border-red-400 rounded-2xl h-full flex flex-col justify-center">
+                  <p class="text-xl font-bold text-red-700">Dead</p>
+                  <p class="text-sm">7 perfect days to revive!</p>
+                </div>
+              <% end %>
+            </div>
+
+            <!-- Buttons section - fixed height -->
+            <div class="flex-shrink-0 mt-auto">
+              <div class="flex justify-center space-x-6 mb-4">
+                <%= link_to "Edit", edit_habit_path(habit), data: { turbo_frame: "_top" }, class: "bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-full text-lg font-medium transition" %>
+                <%= button_to "Delete", habit_path(habit), method: :delete,
+                    data: { turbo_confirm: "Delete this habit and its Streakling forever?" },
+                    class: "bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-full text-lg font-medium transition" %>
+              </div>
+
+              <%= button_to toggle_habit_path(habit), method: :patch,
+                  class: "block w-full p-6 rounded-2xl shadow-lg transition #{habit.completed_today? ? 'bg-green-100 border-4 border-green-500' : 'bg-white hover:bg-gray-50 border-2 border-gray-300'}" do %>
+                <div class="flex items-center justify-between">
+                  <div class="text-left">
+                    <span class="text-2xl mr-4"><%= habit.emoji %></span>
+                    <span class="text-lg font-bold"><%= habit.habit_name %></span>
+                  </div>
+                  <div class="text-3xl font-light">
+                    <%= habit.completed_today? ? "✓" : "○" %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
           <% end %>
-        </div>
-      <% else %>
-        <p class="text-xl text-gray-600">No habits yet — add your first one below!</p>
-      <% end %>
-    </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="py-32">
+        <p class="text-5xl text-gray-600 mb-8">Streakland is quiet...</p>
+        <p class="text-3xl text-gray-500">Add your first habit to birth a Streakling</p>
+      </div>
+    <% end %>
 
-    <!-- BUTTONS — ALWAYS VISIBLE -->
-    <div class="mt-16 space-x-8">
+    <!-- ADD NEW HABIT + LOG OUT -->
+    <div class="flex justify-center items-center space-x-10">
       <%= link_to "Add New Habit", new_habit_path,
-          class: "bg-indigo-600 hover:bg-indigo-700 text-white text-2xl px-12 py-6 rounded-full shadow-2xl transition font-bold" %>
-
+          class: "bg-indigo-600 hover:bg-indigo-700 text-white text-4xl px-16 py-8 rounded-full shadow-2xl transition font-black" %>
       <%= button_to "Log out", destroy_user_session_path, method: :delete,
-          class: "bg-red-600 hover:bg-red-700 text-white text-2xl px-12 py-6 rounded-full shadow-2xl transition font-bold" %>
+          class: "bg-red-600 hover:bg-red-700 text-white text-4xl px-16 py-8 rounded-full shadow-2xl transition font-black" %>
     </div>
 
   </div>
 </div>
-
-<!-- Confetti + Sound on resurrection -->
-<% if flash[:resurrected] %>
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
-  <script>
-    new Audio('https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3').play();
-    confetti({ particleCount: 300, spread: 120, origin: { y: 0.6 } });
-    setTimeout(() => confetti({ particleCount: 100, angle: 60, origin: { x: 0 } }), 250);
-    setTimeout(() => confetti({ particleCount: 100, angle: 120, origin: { x: 1 } }), 400);
-  </script>
-<% end %>

@@ -10,17 +10,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_12_03_192140) do
+ActiveRecord::Schema[7.1].define(version: 2025_12_04_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "habits", force: :cascade do |t|
-    t.string "name"
+    t.string "habit_name"
     t.string "emoji"
     t.bigint "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.date "completed_on"
+    t.text "description"
     t.index ["user_id"], name: "index_habits_on_user_id"
   end
 
@@ -32,6 +33,23 @@ ActiveRecord::Schema[7.1].define(version: 2025_12_03_192140) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_id"], name: "index_pets_on_user_id"
+  end
+
+  create_table "streakling_creatures", force: :cascade do |t|
+    t.bigint "habit_id", null: false
+    t.string "streakling_name", default: "Little One"
+    t.string "animal_type", default: "dragon"
+    t.integer "current_streak", default: 0
+    t.integer "longest_streak", default: 0
+    t.string "mood", default: "happy"
+    t.integer "consecutive_missed_days", default: 0
+    t.boolean "is_dead", default: false
+    t.date "died_at"
+    t.integer "revived_count", default: 0
+    t.string "stage", default: "egg"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["habit_id"], name: "index_streakling_creatures_on_habit_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -52,4 +70,5 @@ ActiveRecord::Schema[7.1].define(version: 2025_12_03_192140) do
 
   add_foreign_key "habits", "users"
   add_foreign_key "pets", "users"
+  add_foreign_key "streakling_creatures", "habits"
 end

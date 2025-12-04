@@ -21,25 +21,24 @@ class HabitsController < ApplicationController
 
   # POST /habits or /habits.json
   def create
-    @habit = current_user.habits.new(habit_params)   # ← this line sets user_id automatically
-  
+    @habit = current_user.habits.build(habit_params)
+
     if @habit.save
-      redirect_to root_path, notice: "Habit added! Feed your critter!"
+      creature = @habit.streakling_creature
+      redirect_to dashboard_path, notice: "#{creature.streakling_name} the #{creature.animal_type.capitalize} was born!"
     else
-      render :new, status: :unprocessable_entity
+      render :new
     end
   end
 
   # PATCH/PUT /habits/1 or /habits/1.json
   def update
-    respond_to do |format|
-      if @habit.update(habit_params)
-        format.html { redirect_to root_path, notice: "Habit was successfully updated." }
-        format.json { render :show, status: :ok, location: @habit }
-      else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @habit.errors, status: :unprocessable_entity }
-      end
+    @habit = current_user.habits.find(params[:id])
+
+    if @habit.update(habit_params)
+      redirect_to dashboard_path, notice: "Your Streakling is happy with the changes!"
+    else
+      render :edit
     end
   end
 
@@ -55,9 +54,22 @@ class HabitsController < ApplicationController
 
   def toggle
     @habit = current_user.habits.find(params[:id])
-    @habit.toggle_today!
-    @habit.user.pet.update_mood_and_streak!  # ← THIS IS THE KEY LINE
-    redirect_to root_path
+
+    if @habit.completed_today?
+      # Un-check it (rare, but allowed)
+      @habit.update(completed_on: nil)
+    else
+      # Check it off → this is what makes your creature grow!
+      @habit.update(completed_on: Time.zone.today)
+    end
+
+    # THIS IS THE MAGIC LINE — grows or regresses the creature
+    @habit.streakling_creature.update_streak_and_mood!
+
+    respond_to do |format|
+      format.html { redirect_to dashboard_path, notice: "Habit updated — your Streakling feels it!" }
+      format.turbo_stream
+    end
   end
 
   private
@@ -68,6 +80,6 @@ class HabitsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def habit_params
-      params.require(:habit).permit(:name, :emoji, :user_id)
+      params.require(:habit).permit(:habit_name, :description, :emoji, streakling_creature_attributes: [:id, :streakling_name, :animal_type])
     end
 end

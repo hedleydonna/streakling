@@ -1,0 +1,78 @@
+<%= turbo_stream.replace "habit_#{@habit.id}" do %>
+  <%= turbo_frame_tag "habit_#{@habit.id}" do %>
+    <div class="bg-white/95 backdrop-blur-lg rounded-3xl shadow-2xl p-10 transform hover:scale-105 transition-all duration-300 border-4 border-purple-100 h-[600px] flex flex-col overflow-hidden">
+      <!-- Header section - fixed height -->
+      <div class="flex-shrink-0">
+        <div class="text-4xl mb-4 text-center">
+          <%= @habit.streakling_creature&.emoji || "🐉" %>
+        </div>
+
+        <h3 class="text-2xl font-bold text-gray-800 mb-2 text-center">
+          <%= @habit.streakling_creature&.streakling_name.presence || "Little One" %>
+        </h3>
+        <p class="text-xl text-purple-600 font-medium mb-4 text-center">
+          <%= @habit.streakling_creature&.stage_name || "Egg" %> <%= (@habit.streakling_creature&.animal_type || "dragon").capitalize %>
+        </p>
+      </div>
+
+      <!-- Message section - fixed height -->
+      <div class="flex-shrink-0 my-8 p-6 bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl border-2 border-purple-200 h-[120px] flex items-center">
+        <p class="text-xl italic text-gray-700 leading-relaxed w-full text-center">
+          "<%= @habit.streakling_creature&.message || "I'm waiting for you..." %>"
+        </p>
+      </div>
+
+      <!-- Status section - fixed height -->
+      <div class="flex-shrink-0 flex justify-around text-lg font-medium mb-4 h-[30px]">
+        <div>Mood: <span class="text-green-600"><%= (@habit.streakling_creature&.mood || "happy").capitalize %></span></div>
+        <div>Streak: <span class="text-indigo-600"><%= @habit.streakling_creature&.current_streak || 0 %> days</span></div>
+      </div>
+
+      <!-- Description section - fixed height -->
+      <div class="flex-shrink-0 mb-4 h-[50px] flex items-center justify-center">
+        <% if @habit.description.present? %>
+          <p class="text-sm text-gray-600 text-center italic px-4">
+            "<%= @habit.description %>"
+          </p>
+        <% else %>
+          <p class="text-sm text-gray-400 text-center italic">
+            No description
+          </p>
+        <% end %>
+      </div>
+
+      <!-- Dead section placeholder - fixed height -->
+      <div class="flex-shrink-0 mb-4 h-[60px]">
+        <% if @habit.streakling_creature&.is_dead %>
+          <div class="p-3 bg-red-100 border-4 border-red-400 rounded-2xl h-full flex flex-col justify-center">
+            <p class="text-xl font-bold text-red-700">Dead</p>
+            <p class="text-sm">7 perfect days to revive!</p>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Buttons section - fixed height -->
+      <div class="flex-shrink-0 mt-auto">
+        <div class="flex justify-center space-x-6 mb-4">
+          <%= link_to "Edit", edit_habit_path(@habit), class: "bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-full text-lg font-medium transition" %>
+          <%= button_to "Delete", habit_path(@habit), method: :delete,
+              data: { turbo_confirm: "Delete this habit and its Streakling forever?" },
+              class: "bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-full text-lg font-medium transition" %>
+        </div>
+
+        <%= button_to toggle_habit_path(@habit), method: :patch,
+            class: "block w-full p-6 rounded-2xl shadow-lg transition #{@habit.completed_today? ? 'bg-green-100 border-4 border-green-500' : 'bg-white hover:bg-gray-50 border-2 border-gray-300'}" do %>
+          <div class="flex items-center justify-between">
+            <div class="text-left">
+              <span class="text-2xl mr-4"><%= @habit.emoji %></span>
+              <span class="text-lg font-bold"><%= @habit.habit_name %></span>
+            </div>
+            <div class="text-3xl font-light">
+              <%= @habit.completed_today? ? "✓" : "○" %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+<% end %>
