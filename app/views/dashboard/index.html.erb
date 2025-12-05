@@ -120,17 +120,59 @@
     <!-- DEBUG CONTROLS (Development Only) -->
     <% if Rails.env.development? %>
       <div class="bg-yellow-100 border-4 border-yellow-400 rounded-3xl p-8 mb-8">
-        <h2 class="text-2xl font-bold text-yellow-800 mb-4 text-center">🐛 Debug Time Machine</h2>
-        <p class="text-sm text-yellow-700 mb-6 text-center">Test creature behavior by manipulating time</p>
-        <div class="flex flex-wrap justify-center gap-4">
-          <%= link_to "Set Yesterday", debug_yesterday_path,
-              class: "bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-3 rounded-xl font-medium transition" %>
-          <%= link_to "Kill All", debug_kill_path,
-              class: "bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-xl font-medium transition" %>
-          <%= link_to "Complete Today", debug_complete_today_path,
-              class: "bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-medium transition" %>
-          <%= link_to "Reset All", debug_reset_path,
-              class: "bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-medium transition" %>
+        <h2 class="text-2xl font-bold text-yellow-800 mb-4 text-center">🕰️ Enhanced Time Machine</h2>
+
+        <!-- Time Machine Status -->
+        <% time_machine_active = session[:time_machine] && session[:time_machine]['active'] %>
+        <% if time_machine_active %>
+          <div class="bg-purple-200 border-2 border-purple-400 rounded-xl p-4 mb-6">
+            <div class="text-center">
+              <h3 class="text-lg font-bold text-purple-800">🎭 TIME MACHINE ACTIVE</h3>
+              <% 
+                current_date = session[:time_machine]['simulated_date'] ? Date.parse(session[:time_machine]['simulated_date']) : Date.today
+                start_date = session[:time_machine]['start_date'] ? Date.parse(session[:time_machine]['start_date']) : Date.today
+                days_since = (current_date - start_date).to_i
+              %>
+              <p class="text-purple-700">Current Date: <strong><%= current_date.strftime('%B %d, %Y') %></strong></p>
+              <p class="text-purple-700">Days Since Start: <strong><%= days_since %></strong></p>
+            </div>
+          </div>
+
+          <!-- Interactive Time Controls -->
+          <div class="mb-6">
+            <h4 class="text-lg font-semibold text-yellow-800 mb-3 text-center">🎮 Interactive Controls</h4>
+            <div class="flex flex-wrap justify-center gap-3">
+              <%= link_to "⏮️ Previous Day", debug_previous_day_path,
+                  class: "bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-medium transition" %>
+              <%= link_to "⏭️ Next Day", debug_next_day_path,
+                  class: "bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition" %>
+              <%= link_to "❌ Exit Time Machine", debug_exit_time_machine_path,
+                  class: "bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition" %>
+            </div>
+          </div>
+        <% end %>
+
+        <!-- Bulk Operations -->
+        <div class="mb-4">
+          <h4 class="text-lg font-semibold text-yellow-800 mb-3 text-center">🔧 Bulk Operations</h4>
+          <div class="flex flex-wrap justify-center gap-3 mb-4">
+            <%= link_to "🔄 Reset to New", debug_reset_to_new_path,
+                class: "bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition" %>
+            <%= link_to "Set Yesterday", debug_yesterday_path,
+                class: "bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg font-medium transition" %>
+            <%= link_to "💀 Kill All", debug_kill_path,
+                class: "bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition" %>
+            <%= link_to "✅ Complete Today", debug_complete_today_path,
+                class: "bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition" %>
+            <%= link_to "🔄 Reset All", debug_reset_path,
+                class: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition" %>
+          </div>
+        </div>
+
+        <div class="text-center text-xs text-yellow-700">
+          <p>🧪 <strong>Time Machine:</strong> Step through days interactively to see creature evolution!</p>
+          <p>🔄 <strong>Reset to New:</strong> Start fresh with brand new habits/creatures</p>
+          <p>⏮️⏭️ <strong>Previous/Next:</strong> Navigate through time day-by-day</p>
         </div>
       </div>
     <% end %>

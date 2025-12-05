@@ -1,5 +1,6 @@
 class HabitsController < ApplicationController
   before_action :authenticate_user!
+  before_action :setup_time_machine
   before_action :set_habit, only: %i[ show edit update destroy toggle ]
   before_action :authorize_habit_owner, only: %i[ show edit update destroy toggle ]
 
@@ -62,11 +63,18 @@ class HabitsController < ApplicationController
       @habit.update(completed_on: nil)
     else
       # Check it off → this is what makes your creature grow!
-      @habit.update(completed_on: Time.zone.today)
+      effective_date = TimeMachine.active? ? TimeMachine.simulated_date : Time.zone.today
+      @habit.update(completed_on: effective_date)
     end
 
     # THIS IS THE MAGIC LINE — grows or regresses the creature
     @habit.streakling_creature.update_streak_and_mood!
+
+    # Record completion in time machine history if active
+    if TimeMachine.active?
+      completed = @habit.completed_today?
+      TimeMachine.record_completion(@habit.id, TimeMachine.simulated_date, completed)
+    end
 
     respond_to do |format|
       format.html { redirect_to dashboard_path, notice: "Habit updated — your Streakling feels it!" }
@@ -84,6 +92,10 @@ class HabitsController < ApplicationController
       unless @habit.user == current_user
         redirect_to root_path, alert: "You can only access your own habits."
       end
+    end
+
+    def setup_time_machine
+      TimeMachine.session = session
     end
 
     # Only allow a list of trusted parameters through.

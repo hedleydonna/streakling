@@ -77,4 +77,46 @@ class DebugControllerTest < ActionDispatch::IntegrationTest
     # In production, the controller would raise an error
     assert Rails.env.test?
   end
+
+  test "should reset to new and activate time machine" do
+    get debug_reset_to_new_url
+    assert_redirected_to root_path
+    follow_redirect!
+
+    # Should have time machine session data
+    assert session[:time_machine]
+    assert session[:time_machine]['active']
+  end
+
+  test "should advance to next day when time machine active" do
+    # Activate time machine first
+    get debug_reset_to_new_url
+    follow_redirect!
+
+    # Now advance to next day
+    get debug_next_day_url
+    assert_redirected_to root_path
+  end
+
+  test "should go back one day when time machine active" do
+    # Activate time machine and advance first
+    get debug_reset_to_new_url
+    follow_redirect!
+    get debug_next_day_url
+    follow_redirect!
+
+    # Now go back
+    get debug_previous_day_url
+    assert_redirected_to root_path
+  end
+
+  test "should exit time machine" do
+    # Activate time machine first
+    get debug_reset_to_new_url
+    follow_redirect!
+
+    # Exit time machine
+    get debug_exit_time_machine_url
+    assert_redirected_to root_path
+  end
 end

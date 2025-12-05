@@ -11,14 +11,24 @@ class Habit < ApplicationRecord
   # Every time a habit is created, a new Streakling is born
   after_create :ensure_streakling_creature!
 
-  # Returns true if this habit was completed today
+  # Returns true if this habit was completed today (respects time machine)
   def completed_today?
-    completed_on == Time.zone.today
+    completed_on == current_effective_date
   end
 
   # Default emoji for habits (creature provides the main visual identity)
   def display_emoji
     "📝"
+  end
+
+  private
+
+  def current_effective_date
+    if defined?(TimeMachine) && TimeMachine.active?
+      TimeMachine.simulated_date
+    else
+      Time.zone.today
+    end
   end
 
   # Public method to ensure a habit has a streakling creature

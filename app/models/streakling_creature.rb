@@ -156,7 +156,7 @@ class StreaklingCreature < ApplicationRecord
     self.died_at = nil
     self.current_streak = 7  # Start as baby
     self.consecutive_missed_days = 0
-    self.mood = "happy"
+      self.mood = "happy"
     self.stage = "baby"
     self.revived_count += 1
 
@@ -176,9 +176,9 @@ class StreaklingCreature < ApplicationRecord
         "You raised a legend, and now we walk through eternity side by side. 👑",
         "Our story transcends time itself. Forever yours, eternally grateful. 💎"
       ].sample
+                  end
     end
-  end
-
+  
   def eternal_missed_message
     [
       "Even eternal beings need their rest... but I still appreciate you! 🌙",

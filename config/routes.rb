@@ -6,6 +6,12 @@ Rails.application.routes.draw do
     get 'debug/kill', as: :debug_kill
     get 'debug/complete_today', as: :debug_complete_today
     get 'debug/reset', as: :debug_reset
+
+    # Enhanced Time Machine
+    get 'debug/reset_to_new', as: :debug_reset_to_new
+    get 'debug/next_day', as: :debug_next_day
+    get 'debug/previous_day', as: :debug_previous_day
+    get 'debug/exit_time_machine', as: :debug_exit_time_machine
   end
   # ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←
 
