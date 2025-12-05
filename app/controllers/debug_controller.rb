@@ -4,148 +4,165 @@ class DebugController < ApplicationController
   before_action :ensure_development!
   before_action :setup_time_machine
 
-  def yesterday
-    current_user.habits.update_all(completed_on: 1.day.ago.to_date)
-    current_user.habits.each { |habit| habit.ensure_streakling_creature!; habit.streakling_creature.update_streak_and_mood! }
-    redirect_to root_path, notice: "All habits set to YESTERDAY — Creatures are sad"
-  end
-
-  def kill
-    current_user.habits.update_all(completed_on: 2.days.ago.to_date)
-    current_user.habits.each { |habit| habit.ensure_streakling_creature!; habit.streakling_creature.update_streak_and_mood! }
-    redirect_to root_path, alert: "CREATURES ARE DEAD"
-  end
-
-  def complete_today
-    effective_date = TimeMachine.active? ? TimeMachine.simulated_date : Time.zone.today
-    current_user.habits.update_all(completed_on: effective_date)
-
-    # Update all streakling creatures (ensure they exist first)
-    current_user.habits.each { |habit| habit.ensure_streakling_creature!; habit.streakling_creature.update_streak_and_mood! }
-
-    redirect_to root_path, notice: "Habits completed today — Creatures are happy!"
-  end
-
-  def reset
-    current_user.habits.update_all(completed_on: Time.zone.today)
-    current_user.habits.each { |habit| habit.ensure_streakling_creature!; habit.streakling_creature.update_streak_and_mood! }
-    redirect_to root_path, notice: "Everything reset — Creatures are HAPPY again"
-  end
-
-  # Enhanced Time Machine Methods
-  def reset_to_new
-    # Reset habits to never completed
-    current_user.habits.update_all(completed_on: nil)
-
-    # Reset all creatures to initial state
-    current_user.habits.each do |habit|
-      creature = habit.streakling_creature
-      if creature
-        creature.update!(
-          current_streak: 0,
-          longest_streak: 0,
-          mood: "happy",
-          consecutive_missed_days: 0,
-          is_dead: false,
-          died_at: nil,
-          revived_count: 0,
-          stage: "egg",
-          became_eternal_at: nil
-        )
-      else
-        # Create new creature if none exists
-        habit.create_streakling_creature!(
-          streakling_name: "Little One",
-          animal_type: "dragon",
-          current_streak: 0,
-          longest_streak: 0,
-          mood: "happy",
-          consecutive_missed_days: 0,
-          is_dead: false,
-          revived_count: 0,
-          stage: "egg"
-        )
+  def activate
+    # Reset all habits and creatures to initial state (wrapped in transaction)
+    ActiveRecord::Base.transaction do
+      current_user.habits.includes(:streakling_creature).find_each do |habit|
+        # Reset habit completion
+        habit.update!(completed_on: nil)
+        
+        # Reset creature to initial state
+        if habit.streakling_creature
+          habit.streakling_creature.reset_to_new!
+        end
       end
     end
-
+    
     # Initialize time machine
+    # Set start_date to yesterday so day count starts at 1 on activation
     session[:time_machine] = {
       'active' => true,
-      'simulated_date' => Date.today.to_s,
-      'start_date' => Date.today.to_s,
+      'simulated_date' => Time.zone.today.to_s,
+      'start_date' => (Time.zone.today - 1.day).to_s,
       'completion_history' => {}
     }
     
-    # Also set up TimeMachine session
+    # Set up TimeMachine session
     TimeMachine.session = session
 
-    redirect_to root_path, notice: "🔄 Reset to brand new! Time machine activated. Today is #{Date.today.strftime('%B %d, %Y')}"
+    redirect_to root_path, notice: "🕰️ Time machine activated! All habits and creatures reset to initial state."
+  end
+
+  def deactivate
+    # Clear time machine session
+    session.delete(:time_machine)
+    
+    # Clear TimeMachine session
+    TimeMachine.session = session
+
+    redirect_to root_path, notice: "🕰️ Time machine deactivated. Back to real time!"
   end
 
   def next_day
-    # Check if time machine exists, if not redirect
+    # Check if time machine is actually active BEFORE doing anything
     unless session[:time_machine] && session[:time_machine]['active']
-      redirect_to root_path, alert: "❌ Time machine not active! Reset to new first."
+      Rails.logger.warn "Time Machine: Session invalid on next_day attempt. Session: #{session[:time_machine].inspect}"
+      respond_to do |format|
+        format.html { redirect_to root_path, alert: "Time machine is not active." }
+        format.turbo_stream { head :bad_request }
+      end
       return
     end
-
-    # Get current date from session
-    current_date = if session[:time_machine]['simulated_date']
-      Date.parse(session[:time_machine]['simulated_date'])
-    else
-      session[:time_machine]['start_date'] ? Date.parse(session[:time_machine]['start_date']) : Time.zone.today
-    end
     
-    new_date = current_date.tomorrow
-    
-    # Update session - create new hash to ensure persistence
-    tm_data = session[:time_machine].dup || {}
-    tm_data['simulated_date'] = new_date.to_s
-    session[:time_machine] = tm_data
-    
+    # Ensure session is set up before advancing
     TimeMachine.session = session
-
-    redirect_to root_path, notice: "⏭️ Advanced to next day: #{new_date.strftime('%B %d, %Y')}"
-  end
-
-  def previous_day
-    # Check if time machine exists, if not redirect
+    
+    # Store original session state for debugging
+    original_date = TimeMachine.simulated_date
+    
+    # Advance simulated date by 1 day
+    TimeMachine.next_day!
+    
+    # CRITICAL: Rebuild session hash to ensure Rails detects the change
+    # Preserve ALL existing data to prevent session corruption
+    existing_data = session[:time_machine]
+    session[:time_machine] = {
+      'active' => existing_data['active'],
+      'simulated_date' => TimeMachine.simulated_date.to_s,
+      'start_date' => existing_data['start_date'],
+      'completion_history' => existing_data.fetch('completion_history', {}).dup
+    }
+    
+    # Re-setup TimeMachine session after session update
+    TimeMachine.session = session
+    
+    # Verify session is still valid before proceeding
     unless session[:time_machine] && session[:time_machine]['active']
-      redirect_to root_path, alert: "❌ Time machine not active! Reset to new first."
+      Rails.logger.error "Time Machine: Session lost after update. Original date: #{original_date}, New date: #{TimeMachine.simulated_date}"
+      respond_to do |format|
+        format.html { redirect_to root_path, alert: "Time machine session was lost. Please reactivate." }
+        format.turbo_stream { head :bad_request }
+      end
       return
     end
+    
+    # Load habits for turbo_stream template (ensure it's always an array)
+    @habits = current_user.habits.includes(:streakling_creature).order(:created_at).to_a
+    
+    # Log successful advancement for debugging
+    Rails.logger.info "Time Machine: Advanced from #{original_date} to #{TimeMachine.simulated_date}"
 
-    # Get current date from session
-    current_date = if session[:time_machine]['simulated_date']
-      Date.parse(session[:time_machine]['simulated_date'])
-    else
-      session[:time_machine]['start_date'] ? Date.parse(session[:time_machine]['start_date']) : Time.zone.today
+    respond_to do |format|
+      format.html { redirect_to root_path, notice: "⏭️ Advanced to #{TimeMachine.simulated_date.strftime('%B %d, %Y')}" }
+      format.turbo_stream
     end
-    
-    start_date = if session[:time_machine]['start_date']
-      Date.parse(session[:time_machine]['start_date'])
-    else
-      Time.zone.today
-    end
-    
-    new_date = current_date.yesterday
-    if new_date >= start_date
-      # Update session - create new hash to ensure persistence
-      tm_data = session[:time_machine].dup || {}
-      tm_data['simulated_date'] = new_date.to_s
-      session[:time_machine] = tm_data
-      
-      TimeMachine.session = session
-      redirect_to root_path, notice: "⏮️ Went back to previous day: #{new_date.strftime('%B %d, %Y')}"
-    else
-      redirect_to root_path, alert: "❌ Cannot go before the starting date!"
+  rescue => e
+    Rails.logger.error "Time Machine Next Day Error: #{e.message}\n#{e.backtrace.join("\n")}"
+    respond_to do |format|
+      format.html { redirect_to root_path, alert: "Error advancing time: #{e.message}" }
+      format.turbo_stream { head :bad_request }
     end
   end
 
-  def exit_time_machine
-    session.delete(:time_machine)
+  def next_7_days
+    # Check if time machine is actually active BEFORE doing anything
+    unless session[:time_machine] && session[:time_machine]['active']
+      Rails.logger.warn "Time Machine: Session invalid on next_7_days attempt. Session: #{session[:time_machine].inspect}"
+      respond_to do |format|
+        format.html { redirect_to root_path, alert: "Time machine is not active." }
+        format.turbo_stream { head :bad_request }
+      end
+      return
+    end
+    
+    # Ensure session is set up before advancing
     TimeMachine.session = session
-    redirect_to root_path, notice: "🕰️ Time machine deactivated. Back to real time!"
+    
+    # Store original session state for debugging
+    original_date = TimeMachine.simulated_date
+    
+    # Advance simulated date by 7 days
+    TimeMachine.advance_days!(7)
+    
+    # CRITICAL: Rebuild session hash to ensure Rails detects the change
+    # Preserve ALL existing data to prevent session corruption
+    existing_data = session[:time_machine]
+    session[:time_machine] = {
+      'active' => existing_data['active'],
+      'simulated_date' => TimeMachine.simulated_date.to_s,
+      'start_date' => existing_data['start_date'],
+      'completion_history' => existing_data.fetch('completion_history', {}).dup
+    }
+    
+    # Re-setup TimeMachine session after session update
+    TimeMachine.session = session
+    
+    # Verify session is still valid before proceeding
+    unless session[:time_machine] && session[:time_machine]['active']
+      Rails.logger.error "Time Machine: Session lost after update. Original date: #{original_date}, New date: #{TimeMachine.simulated_date}"
+      respond_to do |format|
+        format.html { redirect_to root_path, alert: "Time machine session was lost. Please reactivate." }
+        format.turbo_stream { head :bad_request }
+      end
+      return
+    end
+    
+    # Load habits for turbo_stream template (ensure it's always an array)
+    @habits = current_user.habits.includes(:streakling_creature).order(:created_at).to_a
+    
+    # Log successful advancement for debugging
+    Rails.logger.info "Time Machine: Advanced 7 days from #{original_date} to #{TimeMachine.simulated_date}"
+
+    respond_to do |format|
+      format.html { redirect_to root_path, notice: "⏩ Advanced 7 days to #{TimeMachine.simulated_date.strftime('%B %d, %Y')}" }
+      format.turbo_stream { render 'next_day' }
+    end
+  rescue => e
+    Rails.logger.error "Time Machine Next 7 Days Error: #{e.message}\n#{e.backtrace.join("\n")}"
+    respond_to do |format|
+      format.html { redirect_to root_path, alert: "Error advancing time: #{e.message}" }
+      format.turbo_stream { head :bad_request }
+    end
   end
 
   private
@@ -156,11 +173,5 @@ class DebugController < ApplicationController
 
   def setup_time_machine
     TimeMachine.session = session
-  end
-
-  def ensure_time_machine_active
-    unless session[:time_machine] && session[:time_machine]['active']
-      redirect_to root_path, alert: "❌ Time machine not active! Reset to new first."
-    end
   end
 end

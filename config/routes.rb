@@ -1,17 +1,11 @@
 Rails.application.routes.draw do
   # ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←
-  # DEBUG TIME MACHINE — DEVELOPMENT AND TEST ENVIRONMENTS
+  # TIME MACHINE — DEVELOPMENT AND TEST ENVIRONMENTS
   if Rails.env.development? || Rails.env.test?
-    get 'debug/yesterday', as: :debug_yesterday
-    get 'debug/kill', as: :debug_kill
-    get 'debug/complete_today', as: :debug_complete_today
-    get 'debug/reset', as: :debug_reset
-
-    # Enhanced Time Machine
-    get 'debug/reset_to_new', as: :debug_reset_to_new
-    get 'debug/next_day', as: :debug_next_day
-    get 'debug/previous_day', as: :debug_previous_day
-    get 'debug/exit_time_machine', as: :debug_exit_time_machine
+    get 'debug/activate_time_machine', to: 'debug#activate', as: :debug_activate_time_machine
+    get 'debug/deactivate_time_machine', to: 'debug#deactivate', as: :debug_deactivate_time_machine
+    post 'debug/next_day', to: 'debug#next_day', as: :debug_next_day
+    post 'debug/next_7_days', to: 'debug#next_7_days', as: :debug_next_7_days
   end
   # ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←
 

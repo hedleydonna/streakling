@@ -164,6 +164,19 @@ class StreaklingCreature < ApplicationRecord
     puts "🎆 Creature revived with fireworks! 🎆"
   end
 
+  def reset_to_new!
+    self.current_streak = 0
+    self.longest_streak = 0
+    self.mood = "happy"
+    self.consecutive_missed_days = 0
+    self.is_dead = false
+    self.died_at = nil
+    self.revived_count = 0
+    self.stage = "egg"
+    self.became_eternal_at = nil
+    save!
+  end
+
   def eternal_completion_message
     # Check for anniversary (yearly celebration)
     if reached_eternal_on_anniversary?

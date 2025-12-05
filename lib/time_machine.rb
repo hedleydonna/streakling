@@ -46,6 +46,21 @@ module TimeMachine
       (simulated_date - start_date).to_i
     end
 
+    def next_day!
+      advance_days!(1)
+    end
+
+    def advance_days!(days)
+      ensure_session_data
+      current = simulated_date
+      new_date = current + days.days
+      
+      # Update both the module state and the session directly
+      if @current_session && @current_session[:time_machine]
+        @current_session[:time_machine]['simulated_date'] = new_date.to_s
+      end
+    end
+
     def reset
       session_data.clear if session_data
     end

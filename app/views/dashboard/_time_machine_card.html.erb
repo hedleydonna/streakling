@@ -1,0 +1,35 @@
+<!-- TIME MACHINE CARD (Development Only - Active State) -->
+<% if Rails.env.development? && session[:time_machine] && session[:time_machine]['active'] %>
+  <div id="time_machine_card" class="bg-yellow-100 border-4 border-yellow-400 rounded-3xl shadow-2xl p-10 transform hover:scale-105 transition-all duration-300 h-[600px] flex flex-col overflow-hidden">
+    <h2 class="text-2xl font-bold text-yellow-800 mb-6 text-center">🕰️ Time Machine</h2>
+    
+    <div class="flex flex-col flex-grow space-y-6">
+      <div class="bg-white rounded-lg p-6 shadow-md flex-grow flex flex-col justify-center">
+        <p class="text-sm text-gray-600 mb-2">Current Simulated Date</p>
+        <p class="text-2xl font-bold text-yellow-800 mb-4">
+          <%= TimeMachine.simulated_date.strftime("%b %d, %Y") %>
+        </p>
+        <p class="text-sm text-gray-500 mb-2">
+          Day <%= TimeMachine.days_since_start %> since activation
+        </p>
+        <div class="mt-4 pt-4 border-t border-gray-200">
+          <p class="text-xs text-gray-500 mb-1">Original Date</p>
+          <p class="text-sm font-medium text-gray-700">
+            <%= TimeMachine.start_date.strftime("%b %d, %Y") %>
+          </p>
+        </div>
+      </div>
+      <div class="mt-auto space-y-3">
+        <%= button_to "⏭️ Next Day", debug_next_day_path,
+            method: :post,
+            class: "block w-full bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-4 rounded-xl font-medium transition text-center border-0" %>
+        <%= button_to "⏩ Next 7 Days", debug_next_7_days_path,
+            method: :post,
+            class: "block w-full bg-purple-600 hover:bg-purple-700 text-white px-6 py-4 rounded-xl font-medium transition text-center border-0" %>
+        <%= link_to "Deactivate Time Machine", debug_deactivate_time_machine_path,
+            class: "block w-full bg-red-600 hover:bg-red-700 text-white px-6 py-4 rounded-xl font-medium transition text-center" %>
+      </div>
+    </div>
+  </div>
+<% end %>
+

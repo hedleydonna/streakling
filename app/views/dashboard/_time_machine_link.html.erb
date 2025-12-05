@@ -1,0 +1,8 @@
+<!-- TIME MACHINE ACTIVATION LINK (Development Only - Inactive State) -->
+<% if Rails.env.development? && (!session[:time_machine] || !session[:time_machine]['active']) %>
+  <div class="text-center mb-16">
+    <%= link_to "🕰️ Activate Time Machine", debug_activate_time_machine_path,
+        class: "text-sm text-yellow-700 hover:text-yellow-800 underline" %>
+  </div>
+<% end %>
+
