@@ -11,7 +11,7 @@ The Time Machine is a development-only debugging tool that allows simulating dif
 ## Current Status
 
 **Status**: Phase 1 - Foundation Complete ✅  
-**Last Updated**: After adding original date display and "Next 7 Days" button
+**Last Updated**: After implementing "Next 7 Days" streak increment functionality (adds 6 to streak for completed habits)
 
 ### ✅ Completed Features
 - [x] Basic activation/deactivation
@@ -24,7 +24,7 @@ The Time Machine is a development-only debugging tool that allows simulating dif
 - [x] Integrated Time Machine card in grid layout (beside creatures)
 - [x] Minimal activation link when inactive (no space taken)
 - [x] "Next Day" button to advance simulated date by 1 day
-- [x] "Next 7 Days" button to advance simulated date by 7 days
+- [x] "Next 7 Days" button to advance simulated date by 7 days, increment streak by 6 for completed habits, and record completions in completion history
 - [x] Automatic reset of habits/creatures to initial state on activation
 - [x] Turbo Streams implementation for seamless Next Day updates (no page reload, no scroll reset)
 - [x] Session persistence improvements (validation before/after updates, error handling)
@@ -68,7 +68,7 @@ Handles time machine activation/deactivation, date navigation, and habit/creatur
 - `activate` - Resets all habits/creatures, then initializes time machine session (sets start_date to yesterday so day count starts at 1)
 - `deactivate` - Clears time machine session state
 - `next_day` - Advances simulated date by 1 day (uses Turbo Streams for seamless updates)
-- `next_7_days` - Advances simulated date by 7 days (uses Turbo Streams for seamless updates)
+- `next_7_days` - Advances simulated date by 7 days, adds 6 to streak for completed habits, and records completions for days 2-7 in completion history (uses Turbo Streams for seamless updates)
 
 **Security:**
 - Only works in development/test environments
@@ -221,7 +221,7 @@ The main dashboard view (`app/views/dashboard/index.html.erb`) renders these par
   - "Day X since activation" counter (starts at 1)
   - Original date (start_date) - displayed below the day counter with a divider (e.g., "Dec 03, 2025")
   - "⏭️ Next Day" button (indigo) - Advances simulated date by 1 day (uses Turbo Streams for seamless updates)
-  - "⏩ Next 7 Days" button (purple) - Advances simulated date by 7 days (uses Turbo Streams for seamless updates)
+  - "⏩ Next 7 Days" button (purple) - Advances simulated date by 7 days, adds 6 to the streak for habits completed on the current day, and records completions for days 2-7 in the completion history (simulates completions for the 6 skipped days)
   - "Deactivate Time Machine" button (red)
 - Card appears beside creatures (1-2 creatures = Time Machine beside them; 3+ creatures = Time Machine in first slot)
 - Only visible in development environment
@@ -408,6 +408,14 @@ post 'debug/next_7_days', to: 'debug#next_7_days', as: :debug_next_7_days
             │ [3. Advance Date]
             ▼
     ┌─────────────────────────────────────┐
+    │ For habits completed on current day:│
+    │   (Next 7 Days only)                │
+    │   - Add 6 to streak                 │
+    │   - Update mood to "happy"          │
+    │   - Update stage                    │
+    │   - Record completions for days     │
+    │     2-7 in completion_history       │
+    │                                     │
     │ TimeMachine.next_day! or            │
     │ TimeMachine.advance_days!(7)        │
     │   current = simulated_date          │

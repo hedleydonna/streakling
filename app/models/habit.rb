@@ -32,6 +32,8 @@ class Habit < ApplicationRecord
   end
 
   # Public method to ensure a habit has a streakling creature
+  # Made public so it can be called from controllers and tests
+  public
   def ensure_streakling_creature!
     # Only create if one doesn't already exist (e.g., when created via nested attributes)
     return if streakling_creature.present?

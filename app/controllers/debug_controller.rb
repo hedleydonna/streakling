@@ -121,6 +121,33 @@ class DebugController < ApplicationController
     # Store original session state for debugging
     original_date = TimeMachine.simulated_date
     
+    # For habits completed on the current day, add 6 to their streak (for the 6 skipped days)
+    # Iterate through all habits and check if they were completed on the original date
+    current_user.habits.includes(:streakling_creature).find_each do |habit|
+      # Reload to ensure we have the latest data from DB
+      habit.reload
+      # Compare dates - both should be Date objects, but ensure type match
+      habit_completed_date = habit.completed_on
+      next unless habit_completed_date && habit_completed_date.to_date == original_date.to_date && habit.streakling_creature
+      
+      creature = habit.streakling_creature.reload
+      creature.current_streak += 6
+      creature.longest_streak = [creature.longest_streak, creature.current_streak].max
+      creature.consecutive_missed_days = 0
+      creature.mood = "happy"
+      # Update stage based on new streak (use private method via send)
+      creature.stage = creature.send(:effective_stage_key)
+      creature.save!
+      
+      # Record completions for days 2-7 in completion history
+      # Ensure TimeMachine session is set before recording
+      TimeMachine.session = session
+      (1..6).each do |day_offset|
+        intermediate_date = original_date + day_offset.days
+        TimeMachine.record_completion(habit.id, intermediate_date, true)
+      end
+    end
+    
     # Advance simulated date by 7 days
     TimeMachine.advance_days!(7)
     
@@ -151,7 +178,7 @@ class DebugController < ApplicationController
     @habits = current_user.habits.includes(:streakling_creature).order(:created_at).to_a
     
     # Log successful advancement for debugging
-    Rails.logger.info "Time Machine: Advanced 7 days from #{original_date} to #{TimeMachine.simulated_date}"
+    Rails.logger.info "Time Machine: Advanced 7 days from #{original_date} to #{TimeMachine.simulated_date} (simulated completions for habits completed on #{original_date})"
 
     respond_to do |format|
       format.html { redirect_to root_path, notice: "⏩ Advanced 7 days to #{TimeMachine.simulated_date.strftime('%B %d, %Y')}" }
