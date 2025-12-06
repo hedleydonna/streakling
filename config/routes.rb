@@ -14,6 +14,7 @@ Rails.application.routes.draw do
     get 'dashboard', to: 'dashboard#index'
     resources :users
     resources :habits
+    resources :stages, only: [:index, :show, :edit, :update]
   end
 
   resources :habits

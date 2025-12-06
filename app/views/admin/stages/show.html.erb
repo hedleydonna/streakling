@@ -1,0 +1,71 @@
+<div class="min-h-screen bg-gray-100 py-12 px-4">
+  <div class="max-w-4xl mx-auto">
+    <div class="mb-8 flex justify-between items-center">
+      <div>
+        <h1 class="text-4xl font-bold text-gray-800 mb-2"><%= @stage.emoji %> <%= @stage.name %></h1>
+        <p class="text-gray-600">Stage Details</p>
+      </div>
+      <div class="space-x-2">
+        <%= link_to "Edit", edit_admin_stage_path(@stage), class: "px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700" %>
+        <%= link_to "Back to Stages", admin_stages_path, class: "px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700" %>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6">
+      <dl class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Key</dt>
+          <dd class="mt-1 text-sm text-gray-900 font-mono"><%= @stage.key %></dd>
+        </div>
+
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Name</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @stage.name %></dd>
+        </div>
+
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Emoji</dt>
+          <dd class="mt-1 text-3xl"><%= @stage.emoji %></dd>
+        </div>
+
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Display Order</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @stage.display_order %></dd>
+        </div>
+
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Minimum Streak</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @stage.min_streak %></dd>
+        </div>
+
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Maximum Streak</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @stage.max_streak %></dd>
+        </div>
+
+        <div class="sm:col-span-2">
+          <dt class="text-sm font-medium text-gray-500">Default Message</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @stage.default_message %></dd>
+        </div>
+
+        <div class="sm:col-span-2">
+          <dt class="text-sm font-medium text-gray-500">Created</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @stage.created_at.strftime("%B %d, %Y at %I:%M %p") %></dd>
+        </div>
+
+        <div class="sm:col-span-2">
+          <dt class="text-sm font-medium text-gray-500">Last Updated</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @stage.updated_at.strftime("%B %d, %Y at %I:%M %p") %></dd>
+        </div>
+      </dl>
+    </div>
+
+    <div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+      <p class="text-sm text-blue-800">
+        <strong>Note:</strong> The <code class="bg-blue-100 px-1 rounded">key</code> field cannot be edited as it's used internally for lookups and migration. 
+        Only the display fields (name, emoji, message, streak ranges) can be modified.
+      </p>
+    </div>
+  </div>
+</div>
+

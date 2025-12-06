@@ -8,6 +8,7 @@ class Admin::DashboardController < ApplicationController
     @creatures_count = StreaklingCreature.count
     @dead_creatures_count = StreaklingCreature.where(is_dead: true).count
     @eternal_creatures_count = StreaklingCreature.where(stage: 'eternal').count
+    @stages_count = Stage.count
   end
 
   private

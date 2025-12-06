@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_12_04_214053) do
+ActiveRecord::Schema[7.1].define(version: 2025_12_06_191504) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -22,6 +22,21 @@ ActiveRecord::Schema[7.1].define(version: 2025_12_04_214053) do
     t.date "completed_on"
     t.text "description"
     t.index ["user_id"], name: "index_habits_on_user_id"
+  end
+
+  create_table "stages", force: :cascade do |t|
+    t.string "key", null: false
+    t.string "name", null: false
+    t.integer "min_streak", null: false
+    t.integer "max_streak", null: false
+    t.text "default_message"
+    t.string "emoji"
+    t.integer "display_order", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["display_order"], name: "index_stages_on_display_order"
+    t.index ["key"], name: "index_stages_on_key", unique: true
+    t.index ["min_streak", "max_streak"], name: "index_stages_on_min_streak_and_max_streak"
   end
 
   create_table "streakling_creatures", force: :cascade do |t|

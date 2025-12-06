@@ -1,0 +1,74 @@
+<div class="min-h-screen bg-gray-100 py-12 px-4">
+  <div class="max-w-4xl mx-auto">
+    <div class="mb-8 flex justify-between items-center">
+      <div>
+        <h1 class="text-4xl font-bold text-gray-800 mb-2">Edit Stage: <%= @stage.name %></h1>
+        <p class="text-gray-600">Update stage details</p>
+      </div>
+      <%= link_to "Back", admin_stage_path(@stage), class: "px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700" %>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6">
+      <%= form_with model: [:admin, @stage], local: true do |form| %>
+        <% if @stage.errors.any? %>
+          <div class="mb-4 bg-red-50 border border-red-200 rounded p-4">
+            <h3 class="text-red-800 font-medium mb-2">Please fix the following errors:</h3>
+            <ul class="list-disc list-inside text-red-600">
+              <% @stage.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+
+        <div class="space-y-6">
+          <div>
+            <%= form.label :name, class: "block text-sm font-medium text-gray-700 mb-1" %>
+            <%= form.text_field :name, class: "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" %>
+          </div>
+
+          <div>
+            <%= form.label :emoji, class: "block text-sm font-medium text-gray-700 mb-1" %>
+            <%= form.text_field :emoji, class: "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-2xl" %>
+            <p class="mt-1 text-xs text-gray-500">Enter a single emoji character</p>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <%= form.label :min_streak, "Minimum Streak", class: "block text-sm font-medium text-gray-700 mb-1" %>
+              <%= form.number_field :min_streak, min: 0, class: "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" %>
+            </div>
+
+            <div>
+              <%= form.label :max_streak, "Maximum Streak", class: "block text-sm font-medium text-gray-700 mb-1" %>
+              <%= form.number_field :max_streak, min: 0, class: "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" %>
+            </div>
+          </div>
+
+          <div>
+            <%= form.label :default_message, "Default Message", class: "block text-sm font-medium text-gray-700 mb-1" %>
+            <%= form.text_area :default_message, rows: 3, class: "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" %>
+          </div>
+
+          <div>
+            <%= form.label :display_order, "Display Order", class: "block text-sm font-medium text-gray-700 mb-1" %>
+            <%= form.number_field :display_order, min: 0, class: "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" %>
+            <p class="mt-1 text-xs text-gray-500">Lower numbers appear first in lists</p>
+          </div>
+
+          <div class="bg-yellow-50 border border-yellow-200 rounded p-4">
+            <p class="text-sm text-yellow-800">
+              <strong>Key field:</strong> <code class="bg-yellow-100 px-1 rounded"><%= @stage.key %></code> (not editable - used for internal lookups)
+            </p>
+          </div>
+
+          <div class="flex justify-end space-x-3 pt-4">
+            <%= link_to "Cancel", admin_stage_path(@stage), class: "px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50" %>
+            <%= form.submit "Update Stage", class: "px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
